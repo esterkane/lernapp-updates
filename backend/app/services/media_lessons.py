@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import html
 import io
+import random
 import re
 from collections import OrderedDict
 from threading import Lock
@@ -152,7 +153,10 @@ def extract(identifier: str, owner: str, data: dict[str, Any], first: int, last:
             raise ValueError("Ein erklärter Ausdruck fehlt im Transkript. Bitte diesen Abschnitt erneut versuchen.")
         note.section = first
     for index, q in enumerate(generated.questions, 1):
+        if q.kind != "choice" or len(q.answers) != 1:
+            raise ValueError("Verständnisfragen brauchen genau eine bestätigte Auswahlantwort.")
         q.id = f"s{first}-q{index}"
+        random.Random(f"{identifier}:{q.id}").shuffle(q.options)
         q.page = first
         q.source_pages = []
         q.audio_start, q.audio_end = chunk["start"], chunk["end"]
