@@ -77,6 +77,8 @@ def export_backup(password: str, originals: tuple[Path, ...] = ()) -> tuple[byte
                 rows = []
                 for result in conn.execute(select(*_columns(table))).mappings():
                     row = dict(result)
+                    if table.name == "provider_credentials" and row["provider"] == "openai_billing_admin":
+                        continue  # Billing admin access stays on this device.
                     for col in _columns(table):
                         if isinstance(col.type, LargeBinary) and row[col.name] is not None:
                             row[col.name] = asset(bytes(row[col.name]))
@@ -184,6 +186,8 @@ def restore_backup(content: bytes, password: str) -> dict[str, int]:
                     if set(source) != allowed:
                         raise TransferError("Die Datenstruktur der Sicherung passt nicht zur App-Version.")
                     row = dict(source)
+                    if table.name == "provider_credentials" and row["provider"] == "openai_billing_admin":
+                        continue  # Do not import billing admin access from a foreign pack.
                     for col in _columns(table):
                         value = row[col.name]
                         if value is None:

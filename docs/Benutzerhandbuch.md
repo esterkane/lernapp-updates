@@ -49,6 +49,14 @@ Für deutsche Texte kannst du die lokale Stimme verwenden. Bei gemischtem Deutsc
 
 Online-Vorlesen und Online-Hörproben werden über den verbundenen Anbieter abgerechnet. Lokales Vorlesen verursacht keine API-Gebühren. Über **Kostenübersicht öffnen** kannst du die Abrechnung direkt beim Anbieter prüfen. Lokale Kostenschätzungen und hypothetische Cloud-Vergleiche werden nicht angezeigt.
 
+### Admin-Schlüssel für die Abrechnung speichern (optional)
+
+Öffne **Einstellungen → Kosten → Anbieterabrechnung prüfen** und danach **Anbieterbeträge direkt abrufen**. Gib deinen OpenAI-Admin-API-Schlüssel ein und klicke **Schlüssel auf diesem Gerät speichern**.
+
+Der Schlüssel wird verschlüsselt für den aktuellen Lernbereich auf diesem Laptop gespeichert. Beim nächsten Mal lässt du das Passwortfeld leer und klickst **Abrechnung abrufen**. Über denselben Speicherknopf kannst du den Schlüssel ersetzen. **Gespeicherten Admin-Schlüssel entfernen** löscht ihn aus Lernapp; bei OpenAI wird er dadurch nicht widerrufen.
+
+Für einen einmaligen Abruf gibst du den Schlüssel ein und klickst **Abrechnung abrufen**, ohne ihn zu speichern. Der Abrechnungsschlüssel ist vom normalen OpenAI-Schlüssel fürs Lernen getrennt. Er bleibt bei App-Updates erhalten, wird aber nicht in geteilte `.lernapp`-Lernpakete übernommen. Empfänger können ihren eigenen Abrechnungsschlüssel hinterlegen.
+
 ## 6. Materialien und Links
 
 Unter **Materialien** kannst du Dateien hinzufügen. Bei Prüfungs-PDFs müssen Aufgaben, Lösungen und passende Hördateien vor der Freigabe geprüft werden. Nicht jedes heruntergeladene PDF enthält einen vollständigen Test.

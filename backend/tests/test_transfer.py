@@ -49,6 +49,7 @@ def installation(tmp_path, monkeypatch):
         conn.execute(VocabItem.__table__.insert().values(id='word', owner_id='default', wort='Rechnung', bedeutung='invoice', repetitions=7))
         conn.execute(Exam.__table__.insert().values(id='exam', owner_id='default', title='Test', payload={'questions': [{'passage': 'Der ganze Lesetext'}]}, pdf=b'%PDF-test', audio=b'mp3 bytes'))
         conn.execute(ProviderCredential.__table__.insert().values(id='key', learner_id='default', provider='openai', ciphertext=cipher.encrypt(b'sk-test-transfer-private').decode()))
+        conn.execute(ProviderCredential.__table__.insert().values(id='billing-admin', learner_id='default', provider='openai_billing_admin', ciphertext=cipher.encrypt(b'sk-admin-not-portable').decode()))
         conn.execute(AudioFile.__table__.insert().values(id='audio', learner_id='default', path=str(audio), expires_at=datetime.now(UTC) + timedelta(days=30)))
         conn.execute(text("INSERT INTO audit_log (id, ts, caller, tool, arg_digest, outcome, duration_ms, meta) VALUES (50, now(), 'ui', 'test', 'digest', 'ok', 0, '{}')"))
     monkeypatch.setattr(transfer, 'get_engine', lambda: source)
@@ -64,6 +65,10 @@ def installation(tmp_path, monkeypatch):
 
 def test_transfer_preserves_assets_vectors_reviews_credentials_and_audio(installation):
     content, counts, target, dest, old_cipher = installation
+    archive, manifest = transfer._open(content, 'correct-password-123')
+    archive.close()
+    assert all(row['provider'] != 'openai_billing_admin' for row in manifest['tables']['provider_credentials'])
+    assert 'sk-admin-not-portable' not in json.dumps(manifest)
     assert b'sk-test-transfer-private' not in content
     assert transfer.restore_backup(content, 'correct-password-123') == counts
     with target.begin() as conn:

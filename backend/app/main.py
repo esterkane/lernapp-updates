@@ -103,7 +103,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Lernapp API", version="0.2.18", lifespan=lifespan, dependencies=[Depends(enforce_workspace)])
+    app = FastAPI(title="Lernapp API", version="0.2.19", lifespan=lifespan, dependencies=[Depends(enforce_workspace)])
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["http://localhost", "http://127.0.0.1"],

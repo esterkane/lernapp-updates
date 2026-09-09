@@ -57,6 +57,7 @@ def test_billing_ui_clears_submitted_key_even_on_error(monkeypatch, tmp_path):
     def fail(*args, **kwargs):
         raise api.ApiError('Abgelehnt')
     monkeypatch.setattr(api, '_post', fail)
+    monkeypatch.setattr(api, '_get', lambda *a, **k: {'saved': False})
     app = AppTest.from_file(str(page)).run()
     app.text_input(key='billing_admin_key').input('sk-admin-secret')
     next(b for b in app.button if b.label == 'Abrechnung abrufen').click().run()
@@ -88,3 +89,93 @@ def test_costs_remain_available_when_usage_is_unavailable(monkeypatch):
     assert result['total_usd'] == '0'
     assert result['completion_usage'] is None
     assert result['usage_error']
+
+
+def test_saved_billing_key_encrypted_reusable_and_separate(client, monkeypatch):
+    from app.core import credentials
+    from app.core.db import db_session
+    from app.db.base import ProviderCredential
+    from app.services import billing_credentials
+    from sqlalchemy import select
+
+    key = "sk-admin-test-persistent"
+    headers = {"X-Lernapp-Workspace": "default"}
+    prior = credentials.get_api_key("default", "openai")
+    response = client.put("/costs/openai/credential", json={"api_key": key}, headers=headers)
+    assert response.status_code == 200 and response.json() == {"saved": True}
+    assert key not in response.text
+    with db_session() as db:
+        encrypted = db.scalar(select(ProviderCredential.ciphertext).where(
+            ProviderCredential.learner_id == "default", ProviderCredential.provider == billing_credentials.PROVIDER))
+    assert encrypted and key not in encrypted
+    assert credentials._fernet().decrypt(encrypted.encode()).decode() == key
+    assert client.get("/costs/openai/credential", headers=headers).json() == {"saved": True}
+    calls = []
+    monkeypatch.setattr(billing, "fetch", lambda key, *args: calls.append(key) or {"total_usd": "0.07"})
+    payload = {"start": "2026-09-09", "end": "2026-09-09"}
+    assert client.post("/costs/openai/check", json=payload, headers=headers).status_code == 200
+    assert calls == [key]
+    # A one-off key must not overwrite the saved one.
+    assert client.post("/costs/openai/check", json={**payload, "api_key": "sk-admin-once"}, headers=headers).status_code == 200
+    assert billing_credentials.get("default") == key
+    assert credentials.get_api_key("default", "openai") == prior
+    assert client.delete("/costs/openai/credential", headers=headers).json() == {"saved": False}
+    assert billing_credentials.get("default") is None
+    assert client.post("/costs/openai/check", json=payload, headers=headers).status_code == 400
+
+
+def test_billing_key_workspace_isolation(client, monkeypatch):
+    import uuid
+
+    from app.core.db import db_session
+    from app.db.base import Learner
+    from app.services import billing_credentials
+
+    one, two = uuid.uuid4().hex, uuid.uuid4().hex
+    with db_session() as db:
+        db.add_all([Learner(id=one), Learner(id=two)])
+    headers = {"X-Lernapp-Workspace": one}
+    try:
+        assert client.put("/costs/openai/credential", json={"api_key": "sk-admin-isolation"}, headers=headers).status_code == 200
+        other = {"X-Lernapp-Workspace": two}
+        assert client.get("/costs/openai/credential", headers=other).json() == {"saved": False}
+        monkeypatch.setattr(billing, "fetch", lambda *a: pytest.fail("Must not call provider with another workspace's key"))
+        assert client.post("/costs/openai/check", json={"start": "2026-09-09", "end": "2026-09-09"}, headers=other).status_code == 400
+        client.delete("/costs/openai/credential", headers=other)
+        assert billing_credentials.saved(one)
+    finally:
+        billing_credentials.remove(one)
+        with db_session() as db:
+            for lid in (one, two):
+                db.delete(db.get(Learner, lid))
+
+
+def test_billing_ui_save_reuse_and_remove(monkeypatch, tmp_path):
+    from lernapp_ui import api
+    from streamlit.testing.v1 import AppTest
+
+    stored = {}
+    calls = []
+    def request(method, path, **kwargs):
+        assert path == "/costs/openai/credential"
+        if method == "PUT":
+            stored["key"] = kwargs["json"]["api_key"]
+        else:
+            stored.clear()
+        return {"saved": bool(stored)}
+    monkeypatch.setattr(api, "_request", request)
+    monkeypatch.setattr(api, "_get", lambda *a, **kw: {"saved": bool(stored)})
+    monkeypatch.setattr(api, "_post", lambda path, body, **kw: calls.append(body) or {})
+    page = tmp_path / "saved-billing.py"
+    page.write_text("from lernapp_ui.billing_ui import openai_billing\nopenai_billing()\n")
+    app = AppTest.from_file(str(page)).run()
+    app.text_input(key="billing_admin_key").input("sk-admin-ui-test")
+    next(b for b in app.button if b.label == "Schlüssel auf diesem Gerät speichern").click().run()
+    assert not app.exception and stored
+    assert app.text_input(key="billing_admin_key").value == ""
+    # A fresh browser session reuses the backend credential, not Streamlit state.
+    app = AppTest.from_file(str(page)).run()
+    next(b for b in app.button if b.label == "Abrechnung abrufen").click().run()
+    assert calls[-1]["api_key"] is None
+    next(b for b in app.button if b.label == "Gespeicherten Admin-Schlüssel entfernen").click().run()
+    assert not app.exception and not stored

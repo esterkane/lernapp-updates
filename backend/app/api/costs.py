@@ -73,19 +73,55 @@ def pricing() -> dict[str, Any]:
 
 
 class BillingCheck(BaseModel):
-    api_key: SecretStr
+    api_key: SecretStr | None = None
     start: date
     end: date
-    project_id: str | None = Field(default=None, max_length=128, pattern=r'^[A-Za-z0-9_-]+$')
-    organization_id: str | None = Field(default=None, max_length=128, pattern=r'^[A-Za-z0-9_-]+$')
-    api_key_id: str | None = Field(default=None, max_length=128, pattern=r'^[A-Za-z0-9_-]+$')
+    project_id: str | None = Field(default=None, max_length=128, pattern=r"^[A-Za-z0-9_-]+$")
+    organization_id: str | None = Field(default=None, max_length=128, pattern=r"^[A-Za-z0-9_-]+$")
+    api_key_id: str | None = Field(default=None, max_length=128, pattern=r"^[A-Za-z0-9_-]+$")
 
 
-@router.post('/costs/openai/check')
-def check_openai_billing(body: BillingCheck) -> dict[str, Any]:
-    from app.services import openai_billing
+class BillingCredential(BaseModel):
+    api_key: SecretStr
+
+
+@router.get("/costs/openai/credential")
+def billing_credential_status() -> dict[str, bool]:
+    from app.services import billing_credentials
+
+    return {"saved": billing_credentials.saved(resolve_learner())}
+
+
+@router.put("/costs/openai/credential")
+def save_billing_credential(body: BillingCredential) -> dict[str, bool]:
+    from app.core.credentials import CredentialError
+    from app.services import billing_credentials
+
     try:
-        return openai_billing.fetch(body.api_key.get_secret_value(), body.start, body.end,
-                                   body.project_id, body.organization_id, body.api_key_id)
-    except openai_billing.BillingError as exc:
+        billing_credentials.save(resolve_learner(), body.api_key.get_secret_value())
+    except CredentialError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    return {"saved": True}
+
+
+@router.delete("/costs/openai/credential")
+def remove_billing_credential() -> dict[str, bool]:
+    from app.services import billing_credentials
+
+    billing_credentials.remove(resolve_learner())
+    return {"saved": False}
+
+
+@router.post("/costs/openai/check")
+def check_openai_billing(body: BillingCheck) -> dict[str, Any]:
+    from app.core.credentials import CredentialError
+    from app.services import billing_credentials, openai_billing
+
+    try:
+        key = body.api_key.get_secret_value().strip() if body.api_key else None
+        key = key or billing_credentials.get(resolve_learner())
+        if not key:
+            raise HTTPException(400, "Bitte einen OpenAI-Admin-API-Schlüssel eingeben oder speichern.")
+        return openai_billing.fetch(key, body.start, body.end, body.project_id, body.organization_id, body.api_key_id)
+    except (openai_billing.BillingError, CredentialError) as exc:
         raise HTTPException(400, str(exc)) from exc
