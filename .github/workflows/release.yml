@@ -1,0 +1,121 @@
+name: Release installers
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  # version from the tag (v1.2.3 → 1.2.3); falls back to pyproject.toml on manual runs
+  TAG_VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '' }}
+
+jobs:
+  macos:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build .pkg
+        run: |
+          V="${TAG_VERSION#v}"; [ -n "$V" ] && export VERSION="$V"
+          bash packaging/macos/build_pkg.sh
+          python3 packaging/common/verify_artifacts.py dist/*.pkg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-pkg
+          path: dist/*.pkg
+          if-no-files-found: error
+
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build self-extracting installer
+        run: |
+          V="${TAG_VERSION#v}"; [ -n "$V" ] && export VERSION="$V"
+          bash packaging/linux/build_installer.sh
+          python3 packaging/common/verify_artifacts.py dist/*-linux-installer.sh
+          python3 packaging/common/build_update.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-installer
+          path: |
+            dist/*-linux-installer.sh
+            dist/lernapp-update.zip
+          if-no-files-found: error
+
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup -y --no-progress
+      - name: Icon
+        shell: pwsh
+        run: python packaging/common/make_icon.py --ico packaging/windows/lernapp.ico
+      - name: Build zip (source + install.cmd)
+        shell: bash
+        run: |
+          V="${TAG_VERSION#v}"; [ -n "$V" ] && export VERSION="$V"
+          bash packaging/windows/build_zip.sh
+          python packaging/common/verify_artifacts.py dist/*-windows.zip
+      - name: Build Setup.exe (Inno Setup)
+        shell: pwsh
+        run: |
+          $v = "$env:TAG_VERSION".TrimStart('v')
+          if (-not $v) { $v = (Select-String -Path pyproject.toml -Pattern '^version\s*=\s*"([^"]+)"').Matches[0].Groups[1].Value }
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          $iscc = Get-ChildItem "C:\Program Files (x86)\Inno Setup 6\ISCC.exe","C:\Program Files\Inno Setup 6\ISCC.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $iscc) { $iscc = (Get-Command iscc.exe).Source }
+          & $iscc "/DAppVersion=$v" "/DSourceRoot=$((Get-Location).Path)" "/DPayloadRoot=$((Get-Location).Path)\build\windows\Lernapp-$v-windows\src" packaging\windows\lernapp.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-ChildItem dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installers
+          path: |
+            dist/Lernapp-Setup-*.exe
+            dist/*-windows.zip
+          if-no-files-found: error
+
+  release:
+    needs: [macos, linux, windows]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Checksums
+        run: cd dist && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt
+      - name: GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+          draft: true
+          body: |
+            Installer für Endanwender (Internetverbindung während der Installation nötig, ca. 2 GB):
+            - **macOS 12+**: `Lernapp-<version>-macos.pkg` (unsigniert: Rechtsklick → Öffnen)
+            - **Linux (x86_64)**: `lernapp-<version>-linux-installer.sh` → `bash lernapp-…-installer.sh`
+            - **Windows 10/11 x64**: `Lernapp-Setup-<version>.exe` (SmartScreen: „Weitere Informationen“ → „Trotzdem ausführen“) oder `lernapp-<version>-windows.zip` → `install.cmd`
+
+            [Einfaches Benutzerhandbuch](https://github.com/esterkane/lernapp-updates/blob/main/docs/Benutzerhandbuch.md)
+
+            Ab Version 0.2.17: Einstellungen → App-Updates. Lernstände und Einstellungen bleiben erhalten.

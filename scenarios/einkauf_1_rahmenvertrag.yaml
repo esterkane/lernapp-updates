@@ -1,0 +1,40 @@
+id: einkauf_1_rahmenvertrag
+title_de: Rahmenvertrag mit einem Verpackungslieferanten
+category: einkauf
+difficulty: 1
+description_de: >-
+  Sie sind im Einkauf des Catering-Unternehmens Lindenhof Gastro-Service und verhandeln
+  einen neuen Rahmenvertrag über Menüboxen mit Ihrem bisherigen Lieferanten. Sie wollen
+  bessere Preise, längere Zahlungsziele und kürzere Lieferzeiten. Der Vertriebsleiter ist
+  freundlich, verkaufsorientiert und möchte den Vertrag unbedingt behalten.
+learner:
+  role: Einkäufer:in bei der Lindenhof Gastro-Service GmbH (Catering, Nürnberg), Jahresbedarf rund 120.000 Menüboxen
+  goals:
+    - Stückpreis von 190 € auf höchstens 175 € je 1.000 Menüboxen senken
+    - Zahlungsziel von 30 auf 45 Tage verlängern
+    - Lieferzeit von 10 auf höchstens 7 Werktage verkürzen
+  constraints:
+    - Eine Abnahmegarantie ist nur für maximal 100.000 Stück pro Jahr möglich
+    - Der Lieferant soll als Partner erhalten bleiben, kein Abbruch der Beziehung
+  batna: Angebot eines zweiten Anbieters über 180 € je 1.000 Stück, allerdings ohne Erfahrung mit dem Unternehmen und mit 14 Tagen Lieferzeit.
+counterpart:
+  role: Herr Markus Berger, Vertriebsleiter der Berger Verpackungen GmbH
+  personality: freundlich, redegewandt, verkaufsorientiert; betont Qualität und Zuverlässigkeit, gibt beim Preis nur gegen Gegenleistung nach
+  hidden_targets:
+    min_preis: "172 € je 1.000 Stück bei 12 Monaten Laufzeit"
+    zahlungsziel_max: "45 Tage bei Abnahmegarantie von mindestens 90.000 Stück"
+    lieferzeit_min: "7 Werktage, für Eilaufträge 5 Werktage gegen Zuschlag"
+    skonto: "2 % Skonto bei Zahlung innerhalb von 14 Tagen"
+  concession_ladder:
+    - Bleibt bei 190 € und betont die gestiegenen Rohstoffpreise, bietet aber 2 % Skonto an
+    - Bietet 184 € an, wenn die Laufzeit auf 12 Monate festgelegt wird
+    - Bietet 178 € und 40 Tage Zahlungsziel bei einer Abnahmegarantie von 90.000 Stück an
+    - Bietet 175 € und 45 Tage Zahlungsziel an, wenn Abnahmegarantie und 12 Monate Laufzeit kombiniert werden
+    - Bietet 172 € und 7 Werktage Lieferzeit an, wenn zusätzlich die Bestellungen quartalsweise gebündelt werden
+  escalation_triggers:
+    - Drohung mit einem Wettbewerber ohne Namen oder Zahlen
+    - Abwertung der Produktqualität
+    - Forderung nach Einblick in die interne Kalkulation
+context_doc_tags: [verhandlung, einkauf]
+max_turns: 12
+voice: false

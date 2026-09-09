@@ -1,0 +1,51 @@
+# Verified price table — single source for the cost ledger (ADR-0006).
+# Prices in USD. Every entry needs source + verified_on. Never edit a used version in place:
+# bump `version`, keep old entries reproducible via git history.
+version: "2026.09.09.1"
+fx_usd_eur_default: 0.86          # Moneyswapp/Wise 2026-09-08; range 2026: 0.832–0.881
+llm:                               # per 1M tokens
+  openai/gpt-5.6-luna: {input: 0.20, output: 1.20, cached_input: 0.02, source: "https://developers.openai.com/api/docs/pricing", verified_on: "2026-09-09", note: "Standard short-context pricing; excludes Fast, Batch/Flex, long-context, cache writes and region surcharges. Provider Costs API is authoritative for account charges.", valid_from: "2026-09-09", history: [{valid_from: "1900-01-01", valid_to: "2026-09-09", input: 0.2, output: 1.2, source: "Legacy Lernapp price table 2026.09.08.3"}]}
+  openai/gpt-5.6-terra: {input: 2.00, output: 12.00, cached_input: 0.20, source: "https://developers.openai.com/api/docs/pricing", verified_on: "2026-09-09", note: "Standard short-context pricing; excludes Fast, Batch/Flex, long-context, cache writes and region surcharges. Provider Costs API is authoritative for account charges.", valid_from: "2026-09-09", history: [{valid_from: "1900-01-01", valid_to: "2026-09-09", input: 2, output: 12, source: "Legacy Lernapp price table 2026.09.08.3"}]}
+  openai/gpt-5.6-sol: {input: 4.00, output: 20.00, cached_input: 0.40, source: "https://developers.openai.com/api/docs/pricing", verified_on: "2026-09-09", note: "Standard short-context pricing; excludes Fast, Batch/Flex, long-context, cache writes and region surcharges. Provider Costs API is authoritative for account charges.", valid_from: "2026-09-09", history: [{valid_from: "1900-01-01", valid_to: "2026-09-09", input: 5, output: 30, source: "Legacy Lernapp price table 2026.09.08.3"}]}
+  # free_tier: true = a learner who selected "Kostenlose Stufe" for Gemini is expected to pay 0 for this model
+  # (Google AI Studio free tier, rate-limited). Pro models are conservatively NOT marked free (TODO(verify)).
+  gemini/gemini-3.1-flash-lite: {input: 0.25, output: 1.50, free_tier: true, source: "Google pricing Sept 2026 (free-of-charge column)", verified_on: "2026-09-08"}
+  gemini/gemini-3.7-flash: {input: 0.75, output: 3.75, free_tier: true, source: "Google pricing (intro until 2026-12-31)", verified_on: "2026-09-08"}
+  gemini/gemini-3.1-pro:  {input: 2.00, output: 12.00, free_tier: false, source: "Google pricing (<=200K ctx)", verified_on: "2026-09-08", note: "TODO(verify) free-tier availability of Pro"}
+  gemini/gemini-3.1-pro-preview: {input: 2.00, output: 12.00, free_tier: false, source: "Google pricing (<=200K ctx); API id per LiteLLM registry", verified_on: "2026-09-08", note: "same price as gemini-3.1-pro; TODO(verify) free-tier availability"}
+  anthropic/claude-haiku-4-5: {input: 1.00, output: 5.00, source: "Anthropic pricing", verified_on: "2026-09-08"}
+  anthropic/claude-sonnet-5:  {input: 2.00, output: 10.00, source: "Anthropic pricing", verified_on: "2026-09-08"}
+  anthropic/claude-opus-5:    {input: 5.00, output: 25.00, source: "Anthropic pricing", verified_on: "2026-09-08"}
+  mistral/ministral-3-8b:  {input: 0.15, output: 0.15, source: "Mistral pricing", verified_on: "2026-09-08"}
+  mistral/mistral-small-4: {input: 0.10, output: 0.30, source: "Mistral pricing", verified_on: "2026-09-08"}
+  mistral/mistral-large-3: {input: 0.50, output: 1.50, source: "Mistral pricing", verified_on: "2026-09-08"}
+  azure/gpt-5.6-terra-eu: {input: 2.20, output: 13.20, source: "LiteLLM model cost map entry azure/eu/gpt-5.6-terra (litellm 1.100.0)", verified_on: "2026-09-08", note: "TODO(verify) Azure EU data-zone pricing page + deployment name"}
+stt:                               # per audio minute
+  local/faster-whisper:       {per_minute: 0.0,    source: "local, MIT", verified_on: "2026-09-08"}
+  openai/gpt-transcribe:      {per_minute: 0.0045, source: "OpenAI pricing", verified_on: "2026-09-08"}
+  openai/gpt-4o-mini-transcribe: {per_minute: 0.003, source: "OpenAI pricing", verified_on: "2026-09-08"}
+  mistral/voxtral-mini-transcribe-v2: {per_minute: 0.003, source: "Mistral pricing (EU)", verified_on: "2026-09-08"}
+  deepgram/nova-3-batch:      {per_minute: 0.0043, source: "Deepgram pricing", verified_on: "2026-09-08"}
+  azure/stt-batch:            {per_minute: 0.003,  source: "Azure Speech $0.18/h", verified_on: "2026-09-08"}
+  azure/stt-realtime:         {per_minute: 0.0167, source: "Azure Speech $1/h", verified_on: "2026-09-08"}
+tts:                               # per 1M characters; chars_per_minute assumption for reports
+  chars_per_minute_assumption: 825
+  local/piper:                {per_1m_chars: 0.0,   source: "local, GPL-3.0 (optional)", verified_on: "2026-09-08"}
+  google/wavenet-de:          {per_1m_chars: 4.0,   source: "Google Cloud TTS pricing", verified_on: "2026-09-08"}
+  google/neural2-de:          {per_1m_chars: 16.0,  source: "Google Cloud TTS pricing", verified_on: "2026-09-08"}
+  google/chirp3-hd:           {per_1m_chars: 30.0,  source: "Google Cloud TTS pricing", verified_on: "2026-09-08"}
+  azure/neural-tts:           {per_1m_chars: 15.0,  source: "Azure pricing", verified_on: "2026-09-08"}
+  mistral/voxtral-mini-tts:   {per_1m_chars: 16.0,  source: "Mistral pricing", verified_on: "2026-09-08"}
+  openai/gpt-4o-mini-tts:     {per_1m_audio_tokens: 12.0, approx_per_minute: 0.015, source: "OpenAI pricing", verified_on: "2026-09-08"}
+  elevenlabs/flash-v2.5:      {per_1m_chars: 50.0,  source: "ElevenLabs (approx, plan-dependent)", verified_on: "2026-09-08"}
+pronunciation:
+  local/prosody-mvp:          {per_minute: 0.0, source: "local", verified_on: "2026-09-08"}
+  local/mfa-gop:              {per_minute: 0.0, source: "local, MIT", verified_on: "2026-09-08"}
+  azure/pron-batch:           {per_minute: 0.003, source: "batch STT $0.18/h, add-on free", verified_on: "2026-09-08", note: "TODO(verify) in Azure calculator"}
+  azure/pron-realtime:        {per_minute: 0.0217, source: "~$1.30/h (STT $1/h + $0.30/h add-on) — from MS Q&A, not official page", verified_on: "2026-09-08", note: "NOT USED (ADR-0002)"}
+embedding:                         # per 1M tokens
+  openai/text-embedding-3-small: {input: 0.02, source: "OpenAI pricing", verified_on: null, note: "TODO(verify) current id/price"}
+  mistral/mistral-embed:         {input: 0.10, source: "Mistral pricing", verified_on: null, note: "TODO(verify)"}
+hosting:                           # EUR per month, fixed
+  hetzner_cx22: {eur_month: 5.0, source: "Hetzner", verified_on: null}
+  domain:       {eur_month: 1.0, source: "~€12/year", verified_on: null}

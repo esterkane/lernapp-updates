@@ -1,0 +1,5 @@
+# ADR-0017 review routing thresholds. Read by app/services/routing.py (a pure function — the
+# model's self-rated confidence is ONE input, never the gate). Change here + run /run-evals.
+min_confidence: 0.85        # any criterion self-rated below this → needs_review
+review_disagreement: 2      # |assessment − validator| ≥ this on any criterion → needs_review (ADR-0004 §3)
+spot_check_share: 0.10      # ceil(10 %) of auto_accept results per skill → spot_check (every 10th; the first always)

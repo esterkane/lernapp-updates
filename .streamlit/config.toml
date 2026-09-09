@@ -1,0 +1,11 @@
+# ADR-0011: no telemetry. Applies when running `streamlit run` from the repo root (the launcher passes flags too).
+[browser]
+gatherUsageStats = false
+
+[server]
+headless = true
+address = "127.0.0.1"
+maxUploadSize = 100
+
+[theme]
+base = "light"

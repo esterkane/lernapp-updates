@@ -1,0 +1,43 @@
+id: einkauf_2_preiserhoehung
+title_de: Angekündigte Preiserhöhung abwehren
+category: einkauf
+difficulty: 2
+description_de: >-
+  Ihr Stahlkomponenten-Lieferant hat eine Preiserhöhung um 12 % angekündigt und begründet
+  sie mit dem Rohstoffindex. Als Einkäufer:in der Brandt & Söhne Metalltechnik sollen Sie die
+  Erhöhung begrenzen und die Preise für die nächsten zwölf Monate absichern. Die Key-Account-
+  Managerin ist gut vorbereitet und tritt bestimmt auf.
+learner:
+  role: Strategische:r Einkäufer:in bei der Brandt & Söhne Metalltechnik GmbH (Siegen), Jahresvolumen rund 1,4 Mio. € beim Lieferanten
+  goals:
+    - Preiserhöhung auf höchstens 6 % begrenzen
+    - Preisbindung für 12 Monate erreichen
+    - Eine transparente Preisgleitklausel vereinbaren, die auch Preissenkungen weitergibt
+    - Mengenrabatt bei Mehrabnahme sichern
+  constraints:
+    - Die Produktion darf nicht gefährdet werden; ein Lieferantenwechsel dauert mindestens neun Monate
+    - Mehrabnahme von bis zu 20 % ist realistisch, mehr nicht
+    - Kein Vertragsbruch, keine Drohung mit Zahlungsverzug
+  batna: Teilverlagerung von rund 30 % des Volumens auf einen zweiten Lieferanten innerhalb von neun Monaten, mit Qualifizierungskosten von etwa 40.000 €.
+counterpart:
+  role: Frau Silke Aurich, Key-Account-Managerin der Rheinstahl Komponenten KG
+  personality: bestimmt, gut vorbereitet, argumentiert mit Indizes und Kosten; bewegt sich nur schrittweise und verlangt für jedes Zugeständnis eine Gegenleistung
+  hidden_targets:
+    min_erhoehung: "7 %"
+    preisgleitklausel: "akzeptabel mit Anpassung alle 6 Monate nach Stahlindex, in beide Richtungen"
+    mengenrabatt: "3 % ab 20 % Mehrabnahme"
+    laufzeit: "12 Monate Preisbindung nur bei Abnahmegarantie über das Vorjahresvolumen"
+    interne_lage: "Auslastung des Werks liegt bei 70 %, der Kunde ist wichtig"
+  concession_ladder:
+    - Beharrt auf 12 % und verweist auf den Rohstoffindex und die Energiekosten
+    - Bietet 10 % an, wenn der Vertrag um 12 Monate verlängert wird
+    - Bietet 8,5 % plus Preisgleitklausel mit halbjährlicher Anpassung an
+    - Bietet 7 % bei Abnahmegarantie über das Vorjahresvolumen an
+    - Ergänzt 7 % um einen Mengenrabatt von 3 % ab 20 % Mehrabnahme und eine Gleitklausel in beide Richtungen
+  escalation_triggers:
+    - Drohung mit sofortigem Lieferantenwechsel, obwohl dies unrealistisch ist
+    - Anzweifeln der Rohstoffindizes ohne eigene Zahlen
+    - Vorwurf der Preistreiberei oder unsachliche Kritik am Unternehmen
+context_doc_tags: [verhandlung, einkauf]
+max_turns: 14
+voice: false

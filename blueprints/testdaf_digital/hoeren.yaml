@@ -1,0 +1,17 @@
+id: testdaf_digital_hoeren
+skill: hoeren
+format: digital
+source_url: https://www.testdaf.de/   # TODO(verify)
+version: "0.1.0"
+verified_on: null
+total_time_seconds: 2400              # ~40 min
+n_tasks: 7
+n_items: 30
+input_modality: audio
+output_modality: selection
+scoring: deterministic
+score_scale: {min: 0, max: 20}
+tasks:                                # TODO(verify) complete all 7 task types + item counts from official sample tasks
+  - {task_type: richtig_falsch, description: "Aussagen zu einem Hörtext prüfen (richtig/falsch)"}   # TODO(verify)
+  - {task_type: multiple_choice, description: "Hörtext mit Mehrfachauswahl-Items"}                    # TODO(verify)
+language_functions: [hauptaussagen_erkennen, details_verstehen, standpunkte_erkennen]

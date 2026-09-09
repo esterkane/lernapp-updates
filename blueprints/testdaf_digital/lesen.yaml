@@ -1,0 +1,19 @@
+id: testdaf_digital_lesen
+skill: lesen
+format: digital
+source_url: https://www.testdaf.de/   # TODO(verify) exact page for digital format
+version: "0.1.0"
+verified_on: null
+total_time_seconds: 3300              # ~55 min
+n_tasks: 7
+n_items: 34
+input_modality: text
+output_modality: selection
+scoring: deterministic
+score_scale: {min: 0, max: 20}        # internal only — no TDN mapping (product rule 1)
+tasks:
+  - {task_type: zuordnung, description: "Kurztexte zuordnen"}
+  - {task_type: multiple_choice, description: "Text mit MC-Items"}
+  - {task_type: richtig_falsch_textsagtnichts, description: "Aussagen prüfen"}
+  # TODO(verify): complete the 7 task types from the official sample tasks
+language_functions: [informationen_entnehmen, hauptaussagen_erkennen, argumente_zuordnen]

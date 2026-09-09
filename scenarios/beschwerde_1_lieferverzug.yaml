@@ -1,0 +1,41 @@
+id: beschwerde_1_lieferverzug
+title_de: Beschwerde einer Geschäftskundin nach Lieferverzug
+category: beschwerde
+difficulty: 1
+description_de: >-
+  Als Kundenbetreuer:in der Kranich Logistik AG nehmen Sie den Anruf einer verärgerten
+  Feinkost-Inhaberin entgegen: Eine Kühllieferung kam zwei Tage zu spät, sie vermutet eine
+  unterbrochene Kühlkette und fordert volle Erstattung sowie die Kündigung des Vertrags.
+  Sie sollen die Kundin halten, ohne eine Haftung anzuerkennen.
+learner:
+  role: Kundenbetreuer:in im Key-Account-Team der Kranich Logistik AG (Leipzig)
+  goals:
+    - Die Kundin beruhigen und als Kundin halten
+    - Kulanz auf höchstens 30 % des Auftragswerts begrenzen
+    - Keine Anerkennung einer Haftung für die Kühlkette, bevor das Protokoll geprüft ist
+    - Eine konkrete Prozessverbesserung und feste Ansprechperson anbieten
+  constraints:
+    - Freundlich und ruhig bleiben, auch bei Vorwürfen
+    - Keine Schuldzuweisung an Fahrer:innen oder Kolleg:innen
+    - Keine Zusagen über die eigene Kompetenz hinaus (Kulanz über 30 % braucht Freigabe)
+  batna: Weitergabe an die Teamleitung, was die Kundin voraussichtlich als Abwimmeln empfinden würde.
+counterpart:
+  role: Frau Ute Feldmann, Inhaberin von Feldmann Feinkost (Delikatessen, Dresden)
+  personality: verärgert, direkt, emotional, aber im Kern lösungsorientiert; wird ruhiger, sobald sie sich ernst genommen fühlt und konkrete Schritte hört
+  hidden_targets:
+    akzeptable_kulanz: "20 % Gutschrift plus kostenlose nächste Lieferung"
+    kuendigung: "eigentlich nicht gewollt, ein Wechsel wäre aufwendig"
+    eigentliches_anliegen: "will ernst genommen werden und eine feste Ansprechperson haben"
+    beweislage: "das Kühlkettenprotokoll liegt ihr nicht vor, der Verdacht beruht auf einer angetauten Verpackung"
+  concession_ladder:
+    - Fordert volle Erstattung und Kündigung, wiederholt den Vorwurf der Kühlkettenunterbrechung
+    - Verzichtet auf die Kündigung, wenn eine Erklärung und ein Prüfergebnis zugesagt werden
+    - Akzeptiert 30 % Gutschrift und eine feste Ansprechperson
+    - Akzeptiert 20 % Gutschrift plus kostenlose nächste Lieferung und einen Rückruf mit dem Prüfergebnis innerhalb von zwei Tagen
+  escalation_triggers:
+    - Verweis auf AGB oder Kleingedrucktes statt einer Lösung
+    - Anzweifeln ihrer Schilderung
+    - Weiterverbinden oder Vertrösten ohne konkreten Termin
+context_doc_tags: [verhandlung, beschwerde]
+max_turns: 12
+voice: false

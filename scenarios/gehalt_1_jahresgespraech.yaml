@@ -1,0 +1,40 @@
+id: gehalt_1_jahresgespraech
+title_de: Gehaltsgespräch nach dem ersten Jahr
+category: gehalt
+difficulty: 1
+description_de: >-
+  Sie arbeiten seit einem Jahr als Junior-Projektmanager:in bei der Nordlicht Systems GmbH
+  und haben Ihr Jahresgespräch mit Ihrer Teamleiterin. Sie möchten eine Gehaltsanpassung
+  erreichen und Ihre Leistung sichtbar machen. Die Teamleiterin ist Ihnen wohlgesonnen,
+  hat aber ein begrenztes Budget.
+learner:
+  role: Junior-Projektmanager:in bei der Nordlicht Systems GmbH (Software, Hamburg), aktuell 52.000 € Jahresgehalt
+  goals:
+    - Gehaltserhöhung auf mindestens 57.000 € Jahresgehalt erreichen
+    - Die eigene Leistung mit konkreten Ergebnissen belegen (zwei Projekte fristgerecht abgeschlossen, Kundenzufriedenheit gestiegen)
+    - Einen klaren Zeitpunkt für die Anpassung vereinbaren
+  constraints:
+    - Sachlich und wertschätzend bleiben, keine Drohung mit Kündigung
+    - Keine Gehälter von Kolleg:innen nennen
+  batna: Es liegt kein konkretes Gegenangebot vor; Sie würden das Thema in sechs Monaten erneut ansprechen und sich parallel umsehen.
+counterpart:
+  role: Frau Dr. Petra Hollmann, Teamleiterin Projektmanagement bei der Nordlicht Systems GmbH
+  personality: kooperativ, wertschätzend, budgetbewusst; will die Person halten, muss aber Grenzen einhalten und fragt nach Belegen
+  hidden_targets:
+    max_gehalt: "57.000 € Jahresgehalt"
+    sofort_moeglich: "55.000 € ab dem nächsten Monat"
+    alternativen: "Weiterbildungsbudget 2.000 € pro Jahr, ein zusätzlicher Urlaubstag"
+    bedingung_fuer_maximum: "Übernahme einer Teilprojektleitung ab Januar"
+  concession_ladder:
+    - Bleibt zunächst bei 52.000 € und lobt die Leistung, verweist auf das enge Budget
+    - Bietet 54.000 € ab dem nächsten Quartal an
+    - Bietet 55.000 € ab dem nächsten Monat an
+    - Ergänzt 55.000 € um ein Weiterbildungsbudget von 2.000 € oder einen zusätzlichen Urlaubstag
+    - Bietet 57.000 € ab Januar an, wenn die Person eine Teilprojektleitung übernimmt
+  escalation_triggers:
+    - Drohung mit Kündigung ohne konkretes Angebot
+    - Namentlicher Vergleich mit Gehältern von Kolleg:innen
+    - Ultimatum oder respektloser Ton
+context_doc_tags: [verhandlung, gehalt]
+max_turns: 12
+voice: false

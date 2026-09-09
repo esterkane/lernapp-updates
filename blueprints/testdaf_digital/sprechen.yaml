@@ -1,0 +1,16 @@
+id: testdaf_digital_sprechen
+skill: sprechen
+format: digital
+source_url: https://www.testdaf.de/   # TODO(verify)
+version: "0.1.1"
+verified_on: null
+total_time_seconds: 2100              # ~35 min
+n_tasks: 7
+input_modality: text_audio_or_graphic
+output_modality: recorded_speech
+scoring: rubric
+rubric_ref: sprechen_v1
+score_scale: {min: 0, max: 20}
+tasks:
+  - {task_type: informationen_erfragen, language_functions: [informationen_erfragen], preparation_seconds: 30, response_seconds: 60}   # TODO(verify) all 7 with timings
+language_functions: [zusammenfassen, abwaegen, kritisieren, stellung_nehmen, begruenden, vorschlagen]

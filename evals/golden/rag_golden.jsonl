@@ -1,0 +1,3 @@
+{"query":"Wie eröffne ich eine Gehaltsverhandlung?","expected_chunk_substrings":["Gehaltsverhandlung","Ausgangslage"]}
+{"query":"Redemittel für Bedenken äußern","expected_chunk_substrings":["Bedenken"]}
+{"query":"Liefertermin gegen Preis abwägen","expected_chunk_substrings":["Liefertermin"]}

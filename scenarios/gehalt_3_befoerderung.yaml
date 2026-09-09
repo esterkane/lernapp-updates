@@ -1,0 +1,45 @@
+id: gehalt_3_befoerderung
+title_de: Gehaltspaket für die Bereichsleitung
+category: gehalt
+difficulty: 3
+description_de: >-
+  Sie sollen bei der Kranich Logistik AG die Leitung des Bereichs Kundenservice übernehmen
+  und verhandeln mit der Geschäftsführerin das gesamte Vergütungspaket: Fixgehalt,
+  variable Vergütung, Mobilität und Vertragsklauseln. Ihre Gegenüber ist entschieden,
+  nutzt Schweigen und Gegenfragen und testet, wie belastbar Sie sind.
+learner:
+  role: Angehende Bereichsleiter:in Kundenservice bei der Kranich Logistik AG (Leipzig), bisher Teamleitung mit 84.000 € Jahresgehalt
+  goals:
+    - Fixgehalt von mindestens 115.000 € erreichen
+    - Variable Vergütung von mindestens 20 % des Fixgehalts mit klar messbaren Zielen vereinbaren
+    - Dienstwagen oder gleichwertiges Mobilitätsbudget durchsetzen
+    - Kündigungsfrist und interne Bewährungsphase in akzeptable Grenzen bringen
+  constraints:
+    - Keine Berufung auf persönliche Beziehungen zum Vorstand
+    - Jede Forderung muss mit Verantwortung, Teamgröße oder Marktvergleich begründet werden
+    - Die Entscheidung soll im Gespräch grundsätzlich fallen, Details dürfen schriftlich folgen
+  batna: Verbleib in der Teamleitung bei 84.000 € und ein bereits geführtes Erstgespräch mit einem Wettbewerber, das noch kein Angebot ergeben hat.
+counterpart:
+  role: Frau Annika Vorwerk, Geschäftsführerin der Kranich Logistik AG
+  personality: entschieden, knapp, nutzt Schweigen und Gegenfragen; respektiert gut begründete Forderungen, reagiert allergisch auf unbelegte Zahlen und Namedropping
+  hidden_targets:
+    max_fixgehalt: "118.000 €"
+    variable_max: "25 % vom Fixgehalt, davon die Hälfte an Bereichsziele gekoppelt"
+    dienstwagen: "nur Mittelklasse oder Mobilitätsbudget von 900 € pro Monat"
+    kuendigungsfrist: "6 Monate zum Quartalsende, nicht verhandelbar"
+    bewaehrungsphase: "interne Bewährung von 6 Monaten gewünscht, Verkürzung auf 3 Monate möglich"
+    eigenes_ziel: "Position bis zum Monatsende besetzen, da der Vorgänger bereits gegangen ist"
+  concession_ladder:
+    - Eröffnet mit 102.000 € Fixgehalt, 15 % variabel und ohne Dienstwagen
+    - Erhöht auf 108.000 € und 18 % variabel, verlangt dafür 6 Monate Bewährung
+    - Bietet 112.000 € plus Mobilitätsbudget von 700 € pro Monat an
+    - Bietet 115.000 €, 20 % variabel und Mobilitätsbudget von 900 € oder Mittelklasse-Dienstwagen an
+    - Bietet 118.000 € und 25 % variabel an, wenn die Bewährungsphase auf 6 Monate und die Kündigungsfrist auf 6 Monate akzeptiert werden
+  escalation_triggers:
+    - Verweis auf persönliche Beziehungen zum Vorstand oder Aufsichtsrat
+    - Forderungen ohne Begründung oder mit erfundenen Marktzahlen
+    - Vergleiche mit Großkonzernen ohne Bezug zur Verantwortung
+    - Versuch, die Kündigungsfrist zu verhandeln, nachdem sie als fix bezeichnet wurde
+context_doc_tags: [verhandlung, gehalt]
+max_turns: 16
+voice: false

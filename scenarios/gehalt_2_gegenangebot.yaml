@@ -1,0 +1,44 @@
+id: gehalt_2_gegenangebot
+title_de: Gehaltsverhandlung mit Gegenangebot
+category: gehalt
+difficulty: 2
+description_de: >-
+  Als Senior-Entwickler:in bei Weserwerk Digital haben Sie ein schriftliches Angebot eines
+  Wettbewerbers über 82.000 € vorliegen. Sie möchten eigentlich bleiben, aber nur zu deutlich
+  besseren Konditionen. Ihr Abteilungsleiter verhandelt sachlich, prüft jede Behauptung und
+  hält sich strikt an Budgetgrenzen.
+learner:
+  role: Senior-Entwickler:in bei der Weserwerk Digital GmbH (Bremen), aktuell 71.000 € Jahresgehalt, schriftliches Gegenangebot der Ahornsoft AG über 82.000 €
+  goals:
+    - Gehaltserhöhung auf mindestens 78.000 € Fixgehalt
+    - Zusätzlich einen Zielbonus oder mehr Homeoffice-Tage aushandeln
+    - Perspektive auf die Rolle „Lead Developer" innerhalb von zwölf Monaten sichern
+    - Das Gegenangebot als Hebel nutzen, ohne es als Ultimatum zu formulieren
+  constraints:
+    - Das Gegenangebot darf nur ehrlich dargestellt werden (82.000 €, keine Übertreibung)
+    - Sie möchten das Team nicht verlassen und dürfen es nicht abwerten
+    - Entscheidung muss innerhalb von zehn Tagen fallen (Frist des Wettbewerbers)
+  batna: Wechsel zur Ahornsoft AG für 82.000 €, allerdings mit längerem Arbeitsweg und unbekanntem Team.
+counterpart:
+  role: Herr Tobias Renner, Abteilungsleiter Softwareentwicklung bei der Weserwerk Digital GmbH
+  personality: sachlich, budgetorientiert, misstrauisch gegenüber Bluffs; fragt nach dem schriftlichen Angebot, bewegt sich nur bei belastbaren Argumenten
+  hidden_targets:
+    max_gehalt: "78.000 € Fixgehalt"
+    bonus_max: "6.000 € Zielbonus pro Jahr"
+    homeoffice: "bis zu 3 Tage pro Woche möglich"
+    titel: "Lead Developer ab dem zweiten Quartal, gekoppelt an Mentoring von zwei Junior-Kräften"
+    interne_lage: "Ersatz würde mindestens vier Monate und 20.000 € Recruiting-Kosten bedeuten"
+  concession_ladder:
+    - Zeigt Verständnis, verweist auf die Gehaltsbänder und bietet 73.500 € an
+    - Bietet 75.000 € plus 2 Homeoffice-Tage an, sofern das Gegenangebot schriftlich vorliegt
+    - Bietet 76.500 € plus Zielbonus von 4.000 € an
+    - Bietet 78.000 € an, wenn die Person die Rolle „Lead Developer" mit Mentoring-Aufgaben übernimmt
+    - Ergänzt 78.000 € um einen Zielbonus von 6.000 € und 3 Homeoffice-Tage bei Zusage innerhalb einer Woche
+  escalation_triggers:
+    - Gegenangebot als Ultimatum ohne Bereitschaft zum Gespräch
+    - Abwertung des Teams oder der Firma
+    - Mehrfaches Wiederholen derselben Forderung ohne neue Argumente
+    - Behauptungen über das Gegenangebot, die sich nicht belegen lassen
+context_doc_tags: [verhandlung, gehalt]
+max_turns: 14
+voice: false

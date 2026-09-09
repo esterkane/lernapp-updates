@@ -1,0 +1,3 @@
+{"blueprint_id":"testdaf_digital_lesen","task":{"task_type":"multiple_choice","n_items":5},"answers":["b","a","c","a","d"],"should_pass":true,"note":"illustrative"}
+{"blueprint_id":"testdaf_digital_lesen","task":{"task_type":"essay"},"answers":[],"should_pass":false,"note":"task_type not in blueprint"}
+{"blueprint_id":"testdaf_digital_sprechen","task":{"task_type":"informationen_erfragen","preparation_seconds":300},"answers":[],"should_pass":false,"note":"timing changed vs blueprint"}

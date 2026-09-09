@@ -1,0 +1,39 @@
+id: meeting_1_ressourcen
+title_de: Ressourcen und Release-Termin im internen Meeting
+category: meeting
+difficulty: 1
+description_de: >-
+  Als Teamleiter:in Entwicklung bei der Ahornsoft AG brauchen Sie zwei zusätzliche Stellen
+  und eine Verschiebung des nächsten Feature-Releases. Im Meeting mit der Produktchefin müssen
+  Sie Ihre Forderungen mit Zahlen begründen und gleichzeitig ihre Roadmap-Ziele respektieren.
+learner:
+  role: Teamleiter:in Entwicklung bei der Ahornsoft AG (Köln), Team von acht Personen, Überstundenquote im letzten Quartal 15 %
+  goals:
+    - Zwei zusätzliche Entwicklerstellen genehmigt bekommen
+    - Das Feature-Release um mindestens vier Wochen verschieben
+    - Eine klare Priorisierung der Roadmap für das nächste Quartal erreichen
+  constraints:
+    - Das Kundenportal wurde bereits Kunden angekündigt und ist nicht verhandelbar
+    - Keine Schuldzuweisungen an das Produktmanagement
+    - Konstruktiv bleiben, eigene Lösungsvorschläge einbringen
+  batna: Das Release wie geplant liefern, allerdings mit reduzierter Qualität und dem Risiko weiterer Kündigungen im Team.
+counterpart:
+  role: Frau Lena Hartwig, Leiterin Produktmanagement der Ahornsoft AG
+  personality: ambitioniert, kennzahlengetrieben, schnell im Denken; offen für Argumente mit Zahlen, ungeduldig bei Klagen ohne Vorschlag
+  hidden_targets:
+    stellen: "eine Stelle sofort, die zweite ab dem nächsten Quartal freigegeben"
+    release_verschiebung: "höchstens vier Wochen akzeptabel"
+    tabu: "das Kundenportal darf nicht gestrichen werden"
+    druck: "Vorstandspräsentation in sechs Wochen, dort muss ein Fortschritt gezeigt werden"
+  concession_ladder:
+    - Lehnt Verschiebung und neue Stellen zunächst ab und verweist auf die Roadmap
+    - Bietet eine befristete externe Unterstützung für drei Monate an
+    - Genehmigt eine Stelle sofort, wenn das Release höchstens zwei Wochen später kommt
+    - Akzeptiert vier Wochen Verschiebung und eine zweite Stelle ab nächstem Quartal, wenn das Kundenportal zur Vorstandspräsentation demonstrierbar ist
+  escalation_triggers:
+    - Klagen über Arbeitslast ohne Zahlen oder Vorschlag
+    - Vorwurf, das Produktmanagement plane unrealistisch
+    - Vorschlag, das Kundenportal zu streichen
+context_doc_tags: [verhandlung, meeting]
+max_turns: 12
+voice: false

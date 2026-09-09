@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      LLM_BACKEND: fake
+      STT_BACKEND: fake
+      TTS_BACKEND: fake
+      EMBEDDING_BACKEND: fake
+      LERNAPP_DATA_DIR: ${{ github.workspace }}/.ci-data
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          python-version: "3.12"
+
+      - name: Sync dependencies (locked, incl. dev group)
+        run: uv sync --frozen
+
+      - name: Secret-leak gate (blocking)
+        run: uv run python scripts/check_secrets.py
+
+      - name: Ruff
+        run: uv run ruff check .
+
+      - name: Mypy (strict, backend/app)
+        run: uv run mypy
+
+      - name: Pytest
+        run: uv run pytest -q
+
+      - name: Verify model ids (non-blocking, offline)
+        run: uv run python scripts/verify_models.py --non-blocking --offline
+        continue-on-error: true
+
+      - name: Installer scripts – syntax
+        run: |
+          bash -n packaging/common/install_core.sh
+          bash -n packaging/macos/build_pkg.sh
+          bash -n packaging/linux/build_installer.sh
+          bash -n packaging/windows/build_zip.sh
+          bash -n scripts/bootstrap.sh scripts/run_dev.sh
+          python3 packaging/common/make_icon.py --png /tmp/icon.png --size 64 --ico /tmp/icon.ico
+
+      - name: Launcher smoke test (uv run lernapp)
+        run: |
+          uv run lernapp --help
+          uv run lernapp version
+          uv run lernapp doctor || true

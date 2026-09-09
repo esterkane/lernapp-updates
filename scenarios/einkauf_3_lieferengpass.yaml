@@ -1,0 +1,45 @@
+id: einkauf_3_lieferengpass
+title_de: Lieferengpass beim Single-Source-Lieferanten
+category: einkauf
+difficulty: 3
+description_de: >-
+  Ihr einziger Lieferant für Drucksensoren kürzt die zugesagte Liefermenge um 40 % und
+  verlangt für Expresslieferungen einen Zuschlag von 18 %. Als Leiter:in Einkauf bei
+  Kranich Medizintechnik müssen Sie die Versorgung sichern, den Zuschlag begrenzen und
+  eine zweite Bezugsquelle durchsetzen. Der Geschäftsführer des Lieferanten kennt Ihre
+  Abhängigkeit genau.
+learner:
+  role: Leiter:in Einkauf bei der Kranich Medizintechnik GmbH (Tuttlingen), Drucksensoren sind für die Produktion von Infusionspumpen unverzichtbar
+  goals:
+    - Mindestens 80 % der zugesagten Liefermenge für die nächsten sechs Monate sichern
+    - Expresszuschlag auf höchstens 8 % begrenzen
+    - Freigabe einer zweiten Bezugsquelle (Second Source) im Vertrag verankern
+    - Eine Vertragsstrafe bei weiteren Lieferausfällen vereinbaren
+  constraints:
+    - Ein Produktionsstopp kostet rund 80.000 € pro Woche und darf nicht riskiert werden
+    - Eine Verlängerung des Rahmenvertrags ist möglich, aber höchstens um 24 Monate
+    - Der Ton muss trotz Druck professionell bleiben; regulatorische Vorgaben verbieten schnelle Lieferantenwechsel
+  batna: Aufbau einer zweiten Bezugsquelle dauert mindestens acht Monate inklusive Zulassung; kurzfristig gibt es keine Alternative.
+counterpart:
+  role: Herr Dr. Falk Weidemann, Geschäftsführer der Optima Sensorik GmbH
+  personality: dominant, selbstsicher, kennt die Abhängigkeit des Kunden; spricht in kurzen Sätzen, lässt Pausen entstehen und gibt nur nach, wenn er dafür Planungssicherheit bekommt
+  hidden_targets:
+    liefermenge_max: "85 % der zugesagten Menge bei Priorisierung des Kunden"
+    zuschlag_min: "10 % Expresszuschlag"
+    second_source: "akzeptiert, wenn der Rahmenvertrag um 24 Monate verlängert wird"
+    vertragsstrafe: "höchstens 0,5 % je Woche Verzug, gedeckelt bei 5 % des Auftragswerts"
+    eigenes_motiv: "braucht verbindliche Abnahmemengen für die Kapazitätsplanung eines neuen Werks"
+  concession_ladder:
+    - Bleibt bei 60 % Liefermenge und 18 % Zuschlag, verweist auf die Chipknappheit
+    - Bietet 70 % Liefermenge an, wenn die Bestellungen sechs Monate im Voraus fixiert werden
+    - Senkt den Zuschlag auf 14 % bei Verlängerung des Rahmenvertrags um 12 Monate
+    - Bietet 80 % Liefermenge und 10 % Zuschlag bei Vertragsverlängerung um 24 Monate an
+    - Akzeptiert Second Source und eine gedeckelte Vertragsstrafe, wenn Verlängerung und verbindliche Abnahmemengen zugesagt werden
+  escalation_triggers:
+    - Drohung mit rechtlichen Schritten ohne Vertragsgrundlage
+    - Abwertung der Produktqualität oder des Unternehmens
+    - Forderung nach Offenlegung der Kapazitäten oder anderer Kunden
+    - Ultimatum mit unrealistischer Frist
+context_doc_tags: [verhandlung, einkauf]
+max_turns: 16
+voice: false

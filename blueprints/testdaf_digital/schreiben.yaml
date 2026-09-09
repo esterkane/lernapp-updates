@@ -1,0 +1,17 @@
+id: testdaf_digital_schreiben
+skill: schreiben
+format: digital
+source_url: https://www.testdaf.de/   # TODO(verify)
+version: "0.1.0"
+verified_on: null
+total_time_seconds: 3600              # ~60 min, typed
+n_tasks: 2
+input_modality: text_and_graphic
+output_modality: typed_text
+scoring: rubric
+rubric_ref: schreiben_v1
+score_scale: {min: 0, max: 20}
+tasks:
+  - {task_type: textproduktion_mit_quellen, description: "Aus Quellen zusammenfassen und Stellung nehmen"}
+  - {task_type: kurztext, description: "Kürzere schriftliche Reaktion"}   # TODO(verify)
+language_functions: [zusammenfassen, abwaegen, kritisieren, stellung_nehmen, begruenden, vorschlagen]

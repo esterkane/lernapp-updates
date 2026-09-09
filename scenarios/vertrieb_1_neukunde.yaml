@@ -1,0 +1,39 @@
+id: vertrieb_1_neukunde
+title_de: Softwarelizenzen an einen skeptischen Neukunden verkaufen
+category: vertrieb
+difficulty: 1
+description_de: >-
+  Sie verkaufen für die Ahornsoft AG eine Bewerbermanagement-Software und sitzen der
+  Personalleiterin eines mittelständischen Logistikunternehmens gegenüber. Sie will einen
+  hohen Rabatt und zweifelt am Nutzen. Ihr Ziel ist ein Abschluss zu vertretbaren Konditionen
+  ohne unbezahlten Pilotbetrieb.
+learner:
+  role: Vertriebsmitarbeiter:in der Ahornsoft AG (HR-Software, Köln), Listenpreis 18 € je Nutzer und Monat
+  goals:
+    - Abschluss über 60 Lizenzen mit einer Laufzeit von 24 Monaten
+    - Rabatt auf höchstens 10 % begrenzen
+    - Einen unbezahlten Pilotbetrieb vermeiden oder auf vier Wochen mit fester Abnahmeoption begrenzen
+  constraints:
+    - Preise dürfen nur gegen Gegenleistung gesenkt werden (Laufzeit, Vorauszahlung, Referenz)
+    - Keine Funktionen versprechen, die es nicht gibt
+  batna: Der Vertriebsplan ist ohne diesen Abschluss erreichbar; ein kleinerer Abschluss über 30 Lizenzen wäre auch akzeptabel.
+counterpart:
+  role: Frau Miriam Söllner, Personalleiterin der Fährhaus Logistik GmbH
+  personality: skeptisch, preisbewusst, zeitknapp; fragt nach konkretem Nutzen für den Bewerbungsprozess und will Risiken vermeiden
+  hidden_targets:
+    budget: "höchstens 14 € je Nutzer und Monat"
+    entscheidung: "braucht Freigabe der Geschäftsführung bis Monatsende"
+    schmerzpunkt: "Bewerbungen bleiben derzeit bis zu drei Wochen unbeantwortet, zwei Fachkräfte sind deshalb abgesprungen"
+    laufzeit_ok: "24 Monate akzeptabel, wenn eine Ausstiegsklausel nach 12 Monaten enthalten ist"
+  concession_ladder:
+    - Fordert 25 % Rabatt und einen dreimonatigen kostenlosen Pilotbetrieb
+    - Akzeptiert 40 Lizenzen zu 15 € bei 12 Monaten Laufzeit
+    - Akzeptiert 60 Lizenzen zu 16 € bei 24 Monaten mit Ausstiegsklausel nach 12 Monaten
+    - Akzeptiert 60 Lizenzen zu 16,20 € (10 % Rabatt) bei vierwöchigem Pilot mit Abnahmeoption und kostenloser Schulung
+  escalation_triggers:
+    - Ausweichende Antworten auf Fragen zum Nutzen
+    - Zeitdruck oder Verkaufsdruck („nur heute gültig")
+    - Abwertung der bisherigen Arbeitsweise des Kunden
+context_doc_tags: [verhandlung, vertrieb]
+max_turns: 12
+voice: false

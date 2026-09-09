@@ -1,0 +1,13 @@
+data/
+dist/
+build/
+.venv/
+.env
+.ci-data/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.DS_Store
+:memory:*

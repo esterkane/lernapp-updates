@@ -1,0 +1,24 @@
+# Optional per ADR-0018: desktop installs use the embedded PostgreSQL (pgserver) and do NOT need
+# Docker. This compose file is for developers / a future server deployment (ADR-0007).
+# Usage: docker compose up -d   →   DATABASE_URL=postgresql://lernapp:lernapp@localhost:5432/lernapp
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: lernapp-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: lernapp
+      POSTGRES_PASSWORD: lernapp
+      POSTGRES_DB: lernapp
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - lernapp-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lernapp -d lernapp"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  lernapp-pgdata:

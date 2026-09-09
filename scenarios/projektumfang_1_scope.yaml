@@ -1,0 +1,39 @@
+id: projektumfang_1_scope
+title_de: Zusatzwünsche im Website-Projekt verhandeln
+category: projektumfang
+difficulty: 1
+description_de: >-
+  Sie leiten als Projektleiter:in der Agentur Studio Möwe den Website-Relaunch einer
+  Möbelmanufaktur. Kurz vor dem Launch wünscht der Marketingleiter einen Produktkonfigurator
+  und eine englische Version, ohne Budget oder Termin anzupassen. Sie müssen Umfang, Frist und
+  Mehrkosten neu verhandeln, ohne den Kunden zu verlieren.
+learner:
+  role: Projektleiter:in bei der Agentur Studio Möwe (Kiel), Website-Relaunch mit Budget 45.000 € und Launch in vier Wochen
+  goals:
+    - Zusätzliche Funktionen nur über einen schriftlichen Change Request mit Mehrkosten von rund 12.000 € umsetzen
+    - Entweder den Launch um mindestens drei Wochen verschieben oder den Umfang priorisieren
+    - Das Team vor unbezahlten Überstunden schützen
+  constraints:
+    - Der Kunde ist ein wichtiger Referenzkunde und soll gehalten werden
+    - Keine Zusagen ohne Rücksprache mit der Entwicklung
+  batna: Launch der vereinbarten Website zum Termin und ein separates Folgeprojekt für die Zusatzfunktionen im nächsten Quartal.
+counterpart:
+  role: Herr Jonas Kessler, Marketingleiter der Tannenhof Möbelmanufaktur GmbH
+  personality: enthusiastisch, unter Druck der Geschäftsführung, wenig Verständnis für technischen Aufwand; lässt sich von klaren Optionen und Priorisierung überzeugen
+  hidden_targets:
+    zusatzbudget_max: "8.000 €"
+    termin_flex: "Launch darf zwei Wochen später sein, die Messe am 15. Oktober ist der harte Termin"
+    prioritaet: "Der Konfigurator ist wichtiger als die englische Version"
+    interne_lage: "Die Geschäftsführung hat die Zusatzfunktionen bereits intern angekündigt"
+  concession_ladder:
+    - Erwartet beide Funktionen ohne Mehrkosten zum ursprünglichen Termin
+    - Akzeptiert die englische Version als Folgeprojekt, wenn der Konfigurator zum Termin kommt
+    - Akzeptiert Mehrkosten von 5.000 € für den Konfigurator und einen Launch zwei Wochen später
+    - Akzeptiert 8.000 € Mehrkosten, wenn eine abgespeckte Konfigurator-Version zur Messe fertig ist und die Vollversion danach folgt
+  escalation_triggers:
+    - Pauschale Ablehnung ohne Alternativvorschlag
+    - Verweis auf den Vertrag ohne Lösungsangebot
+    - Belehrender Ton über technische Grundlagen
+context_doc_tags: [verhandlung, projektumfang]
+max_turns: 12
+voice: false

@@ -1,0 +1,11 @@
+# Thresholds for the prosody MVP (ADR-0010). Output is qualitative only — never a score.
+long_pause_seconds: 1.5
+low_confidence_prob: 0.6
+low_confidence_min_chars: 3
+repetition_window_words: 2
+fillers: ["ähm", "äh", "also", "halt", "sozusagen", "ähh", "hm", "hmm", "ja also"]
+self_correction_markers: ["äh", "nein", "also", "ich meine", "beziehungsweise"]
+tempo:
+  slow_below_wpm: 90
+  fast_above_wpm: 170
+max_flags: 3
