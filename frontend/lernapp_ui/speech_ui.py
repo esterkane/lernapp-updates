@@ -234,7 +234,7 @@ def render(settings: dict[str, Any]) -> None:
             )
             st.info(
                 "Online-Vorlesen kostet pro Nutzung; auch die Hörprobe wird über den verbundenen Anbieter abgerechnet. "
-                "Die Kostenübersicht zeigt deine geschätzten App-Kosten. Die tatsächliche Abrechnung kannst du dort separat prüfen."
+                "Über „Kostenübersicht öffnen“ kannst du die Abrechnung direkt beim Anbieter prüfen."
             )
         if chosen == "piper":
             st.caption("Für das lokale Vorlesen fallen keine API-Gebühren an.")

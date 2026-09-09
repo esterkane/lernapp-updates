@@ -1272,110 +1272,32 @@ def test_money_formats_zero_and_cents() -> None:
 
 
 @pytest.mark.parametrize("variant", ["empty", "free", "mixed", "budget96"])
-def test_kosten_renders_in_every_state(fake_api: type[FakeApi], variant: str) -> None:
+def test_billing_page_never_loads_local_estimates(
+    fake_api: type[FakeApi], monkeypatch: pytest.MonkeyPatch, variant: str
+) -> None:
     fake_api.usage_variant = variant
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("Billing page must not request local estimates or cloud comparisons")
+
+    monkeypatch.setattr(api, "usage_summary", forbidden)
+    monkeypatch.setattr(api, "usage_events", forbidden)
+    monkeypatch.setattr(api, "costs_counterfactual", forbidden)
     at = _run(PAGES_DIR / "kosten.py")
     assert not at.exception, _fail_message(at)
-    assert any(m.label == "Geschätzte AI-Kosten" for m in at.metric)
-    assert any("Preisliste Version 2026-09" in str(c.value) for c in at.caption)
-    assert FORBIDDEN_BILLING_WORDING not in _texts(at)
-
-
-def test_kosten_empty_month(fake_api: type[FakeApi]) -> None:
-    fake_api.usage_variant = "empty"
-    at = _run(PAGES_DIR / "kosten.py")
-    assert not at.exception, _fail_message(at)
-    cost = next(m for m in at.metric if m.label == "Geschätzte AI-Kosten")
-    assert cost.value == "0,00 €"
-    assert any("Noch keine AI-Nutzung in diesem Monat." in str(i.value) for i in at.info)
-    rate = next(m for m in at.metric if m.label == "Kosten pro Lernstunde")
-    assert rate.value == "Noch nicht genügend Daten"
-    assert any("ab 5 Minuten Lernzeit" in str(c.value) for c in at.caption)
-    assert any("Kein Limit gesetzt – unter Einstellungen festlegen" in str(c.value) for c in at.caption)
-    assert not any(e.label == "Erweiterte Kostendetails" for e in at.expander)
-    assert not any(c.startswith("usage_events") for c in fake_api.calls)
-
-
-def test_kosten_free_tier_only(fake_api: type[FakeApi]) -> None:
-    fake_api.usage_variant = "free"
-    at = _run(PAGES_DIR / "kosten.py")
-    assert not at.exception, _fail_message(at)
-    assert any("Alle Anfragen liefen über die kostenlose Stufe." in str(x.value) for x in at.success)
-    assert any(str(c.value) == "Kostenlose Stufe" for c in at.caption)
-    cost = next(m for m in at.metric if m.label == "Geschätzte AI-Kosten")
-    assert cost.value == "0,00 €"
-    rate = next(m for m in at.metric if m.label == "Kosten pro Lernstunde")
-    assert rate.value == "Noch nicht genügend Daten"
-
-
-def test_kosten_mixed_with_unknown_pricing(fake_api: type[FakeApi]) -> None:
-    from lernapp_ui.components import money
-
-    fake_api.usage_variant = "mixed"
-    summary = usage_summary_for("mixed")
-    at = _run(PAGES_DIR / "kosten.py")
-    assert not at.exception, _fail_message(at)
-    # tooltip + terminology
-    cost = next(m for m in at.metric if m.label == "Geschätzte AI-Kosten")
-    assert cost.value == "0,11 €"
-    assert "Die endgültige Abrechnung deines Anbieters kann geringfügig abweichen." in cost.help
-    assert next(m for m in at.metric if m.label == "Lernzeit").value == "1 Std. 12 Min."
-    rate = next(m for m in at.metric if m.label == "Kosten pro Lernstunde")
-    assert rate.value == money(summary["cost_per_learning_hour_eur"])
-    # provider rows sum to the total
-    providers = summary["providers"]
-    assert abs(sum(p["expected_eur"] for p in providers) - summary["expected_cost_eur"]) < 1e-9
-    markdown = " ".join(str(m.value) for m in at.markdown)
-    for p in providers:
-        assert p["label_de"] in markdown and money(p["expected_eur"]) in markdown
-    assert "0,00 €" in markdown  # Gemini row
-    assert any(str(c.value) == "Kostenlose Stufe" for c in at.caption)
-    # status + unknown pricing
-    assert any("17 von 22 Anfragen vollständig berechnet" in str(c.value) for c in at.caption)
-    assert any("5 Anfragen haben noch keine Preisinformation." in str(i.value) for i in at.info)
-    details = next(e for e in at.expander if e.label == "Details anzeigen")
-    detail_text = " ".join(str(m.value) for m in details.markdown)
-    assert "gpt-5-mini-2026" in detail_text and "Eingabe-Tokens" in detail_text and "5 Anfragen" in detail_text
-    # advanced expander: model table + first page of events
-    advanced = next(e for e in at.expander if e.label == "Erweiterte Kostendetails")
-    assert len(advanced.dataframe) == 2
-    assert any(c.startswith("usage_events:0:25") for c in fake_api.calls)
-    events_df = advanced.dataframe[1].value
-    assert set(events_df["Status"]) >= {"geschätzt", "kostenlos", "unbekannt"}
-    assert "Kostenlose Stufe" in set(events_df["Tarif"])
-    assert any(e.label == "Vergleich: alles in der Cloud" for e in at.expander)
-
-
-def test_kosten_tokens_only_inside_advanced_expander(fake_api: type[FakeApi]) -> None:
-    fake_api.usage_variant = "mixed"
-    at = _run(PAGES_DIR / "kosten.py")
-    assert not at.exception, _fail_message(at)
-    for token_text in (str(FAKE_TOKENS_IN), f"{FAKE_TOKENS_IN:,}".replace(",", "."), str(FAKE_TOKENS_OUT)):
-        assert token_text not in _texts(at, inside=False), token_text
-    inside = _texts(at, inside=True)
-    assert str(FAKE_TOKENS_IN) in inside and str(FAKE_TOKENS_OUT) in inside
-    assert "Tokens" not in _texts(at, inside=False)
-
-
-def test_kosten_budget_warning(fake_api: type[FakeApi]) -> None:
-    fake_api.usage_variant = "budget96"
-    at = _run(PAGES_DIR / "kosten.py")
-    assert not at.exception, _fail_message(at)
-    limit = next(m for m in at.metric if m.label == "Monatslimit")
-    assert limit.value == "4,80 € von 5,00 €"
-    assert any("95 % deines Monatslimits" in str(e.value) for e in at.error)
-    assert not at.warning
-
-
-def test_kosten_backend_error(fake_api: type[FakeApi], monkeypatch: pytest.MonkeyPatch) -> None:
-    def _boom(learner_id: str = "default", month: str | None = None) -> dict[str, Any]:
-        raise api.ApiError("Keine Verbindung zur App.", None, "connect")
-
-    monkeypatch.setattr(api, "usage_summary", _boom)
-    at = _run(PAGES_DIR / "kosten.py")
-    assert not at.exception, _fail_message(at)
-    assert any("Keine Verbindung zur App." in str(e.value) for e in at.error)
     assert not at.metric
+    assert not at.dataframe
+    assert any(e.label == "Anbieterbeträge direkt abrufen" for e in at.expander)
+    text = _texts(at)
+    for removed in (
+        "Lokale Schätzungen",
+        "Geschätzte AI-Kosten",
+        "Kosten pro Lernstunde",
+        "Vergleich: alles in der Cloud",
+        "Ersparnis",
+        "Preisliste Version",
+    ):
+        assert removed not in text
 
 
 def test_app_sidebar_hides_amounts_even_near_budget(fake_api: type[FakeApi]) -> None:

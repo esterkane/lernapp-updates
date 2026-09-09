@@ -47,7 +47,7 @@ Die Lösungen werden erst nach der Abgabe angezeigt. Schreib- und Sprechaufgaben
 
 Für deutsche Texte kannst du die lokale Stimme verwenden. Bei gemischtem Deutsch und Englisch kannst du bei verbundenem OpenAI-Zugang Marin, Cedar oder Alloy auswählen. Höre eine Probe an, stelle das **Sprechtempo** ein und klicke **Auswahl verwenden**. 0,85× liest langsamer als 1,00×.
 
-Online-Vorlesen und Online-Hörproben werden über den verbundenen Anbieter abgerechnet. Lokales Vorlesen verursacht keine API-Gebühren. **Kostenübersicht öffnen** zeigt die geschätzte App-Nutzung; eine tatsächliche Anbieterabrechnung kann separat geprüft werden.
+Online-Vorlesen und Online-Hörproben werden über den verbundenen Anbieter abgerechnet. Lokales Vorlesen verursacht keine API-Gebühren. Über **Kostenübersicht öffnen** kannst du die Abrechnung direkt beim Anbieter prüfen. Lokale Kostenschätzungen und hypothetische Cloud-Vergleiche werden nicht angezeigt.
 
 ## 6. Materialien und Links
 

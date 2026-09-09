@@ -28,7 +28,7 @@ If you use a version older than 0.2.17, install a current version once to get th
 
 Your materials, answers and settings are stored locally. This public repository contains no personal learning records, imported PDFs or API keys. A private learning pack is transferred separately.
 
-AI responses and online voices require a configured provider account and may incur charges. Local speech recognition and the local voice process audio on your laptop. Find usage information under **Einstellungen → Kosten** (Settings → Costs).
+AI responses and online voices require a configured provider account and may incur charges. Local speech recognition and the local voice process audio on your laptop. Check provider billing under **Einstellungen → Kosten** (Settings → Costs).
 
 Scores are for practice only and are not official TestDaF or Goethe exam results. Written and spoken answers need a content review.
 

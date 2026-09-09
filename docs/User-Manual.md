@@ -55,7 +55,7 @@ Open **Einstellungen → Stimme** (Settings → Voice). If needed, use the downl
 
 You can use the local voice for German texts. For mixed German and English, a connected OpenAI account lets you choose Marin, Cedar or Alloy. Listen to a sample, adjust **Sprechtempo** (Speaking speed), and click **Auswahl verwenden** (Use selection). A speed of 0.85× is slower than 1.00×; the German interface may display these as 0,85× and 1,00×.
 
-Online reading and online voice samples are billed by the connected provider. Local reading does not incur API charges. **Kostenübersicht öffnen** (Open cost overview) shows estimated app usage; actual provider billing can be checked separately.
+Online reading and online voice samples are billed by the connected provider. Local reading does not incur API charges. **Kostenübersicht öffnen** (Open cost overview) lets you check billing directly with the provider. Local cost estimates and hypothetical cloud comparisons are not displayed.
 
 ## 6. Add materials and links
 

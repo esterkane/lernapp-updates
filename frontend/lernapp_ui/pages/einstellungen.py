@@ -119,7 +119,7 @@ with profile_tab:
         show_error(exc, api.HINT_CONNECTION)
 
 with costs_tab:
-    if st.button("Abrechnung und Nutzung prüfen"):
+    if st.button("Anbieterabrechnung prüfen"):
         st.switch_page("pages/kosten.py")
     # ================================================================== cost limit
     st.markdown("### Kostenlimit")
@@ -145,8 +145,8 @@ with costs_tab:
         key="usage_stop_on_limit",
     )
     st.caption(
-        "Standard: Du bekommst bei 80 %, 95 % und 100 % des Limits nur einen Hinweis und kannst weiterlernen. "
-        "Mit dem Schalter stoppt die App neue AI-Anfragen, sobald das Limit erreicht ist."
+        "Dieses optionale App-Limit basiert auf internen Schätzungen und kann von der Anbieterabrechnung abweichen. "
+        "Mit dem Schalter stoppt die App neue AI-Anfragen beim geschätzten Limit. Verbindliche Ausgabenlimits bitte beim Anbieter verwalten."
     )
     if st.button("Kostenlimit speichern", type="primary", key="usage_budget_save"):
         try:
