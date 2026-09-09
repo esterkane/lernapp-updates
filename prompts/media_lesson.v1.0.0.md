@@ -26,3 +26,7 @@ Audiofelder bleiben leer, die Anwendung setzt die Originalzeitmarken. source_pag
 warnings nennt konkrete Unklarheiten, wenn vorhanden. Keine Behauptung, dies sei ein offizieller Test.
 Setze page bei jeder Frage und section bei jeder learning_note auf 1 (niemals 0).
 Die Anwendung ersetzt diese Platzhalter anschließend durch die tatsächliche Abschnittsnummer.
+Wähle für Worterklärungen nur etablierte deutsche Ausdrücke. Erkläre auffällige Erkennungsfehler
+nicht als angebliche Dialektwörter, Umgangssprache oder Wortspiele. Bei Unsicherheit wähle
+stattdessen eine andere, eindeutig lesbare Formulierung. Prüfe, ob die Bedeutungserklärung
+zum konkreten Kontext passt. Verwechsle zeitliche Reihenfolge nicht mit einem belegten Grund.
