@@ -1,5 +1,7 @@
 # Lernapp einfach benutzen
 
+[Deutsch](Benutzerhandbuch.md) · [English](User-Manual.md)
+
 ## 1. Installieren und öffnen
 
 Lade den Installer für deinen Laptop von der [Downloadseite](https://github.com/esterkane/lernapp-updates/releases/latest). Unter Windows: ZIP-Datei vollständig entpacken und `install.cmd` doppelklicken. Warte, bis die Installation abgeschlossen ist. Die erste Installation benötigt Internet und kann einige Minuten dauern.

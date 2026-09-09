@@ -13,7 +13,7 @@ EXCLUDED = {'.git', '.venv', 'data', 'dist', 'build', '__pycache__', '.mypy_cach
 MANIFEST = 'SOURCE_MANIFEST.json'
 PUBLIC_DIRS = {'backend', 'frontend', 'launcher', 'mcp', 'config', 'prompts', 'scenarios', 'blueprints', 'packaging', 'scripts', '.streamlit', 'evals'}
 PUBLIC_FILES = {'README.md', 'THIRD_PARTY_NOTICES.md', 'pyproject.toml', 'uv.lock', 'alembic.ini', 'Makefile', '.env.example', '.python-version', 'docker-compose.yml'}
-PUBLIC_DOCS = {'docs/Benutzerhandbuch.md', 'docs/Updates-veroeffentlichen.md'}
+PUBLIC_DOCS = {'docs/User-Manual.md', 'docs/Benutzerhandbuch.md', 'docs/Updates-veroeffentlichen.md'}
 
 
 def files(root):

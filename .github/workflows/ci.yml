@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
       LLM_BACKEND: fake
       STT_BACKEND: fake
       TTS_BACKEND: fake
@@ -21,6 +23,11 @@ jobs:
       LERNAPP_DATA_DIR: ${{ github.workspace }}/.ci-data
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up English system locale
+        run: |
+          sudo locale-gen en_US.UTF-8
+          python3 -c "import locale; locale.setlocale(locale.LC_ALL, ''); assert locale.getlocale()[0] == 'en_US'"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
@@ -40,7 +47,7 @@ jobs:
       - name: Mypy (strict, backend/app)
         run: uv run mypy
 
-      - name: Pytest
+      - name: Pytest (English system locale)
         run: uv run pytest -q
 
       - name: Verify model ids (non-blocking, offline)

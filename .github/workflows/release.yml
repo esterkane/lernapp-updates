@@ -111,11 +111,13 @@ jobs:
           generate_release_notes: true
           draft: true
           body: |
-            Installer für Endanwender (Internetverbindung während der Installation nötig, ca. 2 GB):
-            - **macOS 12+**: `Lernapp-<version>-macos.pkg` (unsigniert: Rechtsklick → Öffnen)
-            - **Linux (x86_64)**: `lernapp-<version>-linux-installer.sh` → `bash lernapp-…-installer.sh`
-            - **Windows 10/11 x64**: `Lernapp-Setup-<version>.exe` (SmartScreen: „Weitere Informationen“ → „Trotzdem ausführen“) oder `lernapp-<version>-windows.zip` → `install.cmd`
+            Install Lernapp on your laptop. An internet connection is needed during installation (approximately 2 GB).
+            - **Windows 10/11 x64:** open `Lernapp-Setup-<version>.exe`, or extract `lernapp-<version>-windows.zip` and run `install.cmd`.
+            - **macOS 12+:** open `Lernapp-<version>-macos.pkg`.
+            - **Linux x86_64:** run `bash lernapp-<version>-linux-installer.sh`.
 
-            [Einfaches Benutzerhandbuch](https://github.com/esterkane/lernapp-updates/blob/main/docs/Benutzerhandbuch.md)
+            These installers are unsigned. Windows or macOS may ask you to confirm that you want to open them.
 
-            Ab Version 0.2.17: Einstellungen → App-Updates. Lernstände und Einstellungen bleiben erhalten.
+            [English user manual](https://github.com/esterkane/lernapp-updates/blob/main/docs/User-Manual.md) · [Deutsches Benutzerhandbuch](https://github.com/esterkane/lernapp-updates/blob/main/docs/Benutzerhandbuch.md)
+
+            From version 0.2.17, open Einstellungen → App-Updates (Settings → App updates) to update the app. Learning progress and settings are preserved, with a local backup before the update. Earlier versions need a one-time installation of a current version.

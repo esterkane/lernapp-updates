@@ -1,35 +1,37 @@
 # Lernapp
 
-Deutsch für TestDaF, Beruf und Verhandlungen üben – auf deinem eigenen Laptop.
+Practise German for TestDaF, work and negotiations on your own laptop.
 
-Die App bietet Gespräche und Schreibübungen, Vokabelkarten, eigene PDF-Modelltests mit Hördateien und eine Übersicht über deinen Lernfortschritt. Du kannst eigene Materialien und hilfreiche Links hinzufügen.
+Lernapp brings together conversation and writing practice, vocabulary cards, PDF-based practice tests with audio, and saved learning progress. Add your own materials and useful links as you learn.
 
-## Herunterladen und starten
+## Download and get started
 
-Lade die passende Version unter [Releases](https://github.com/esterkane/lernapp-updates/releases/latest) herunter:
+Download the installer for your computer from [Releases](https://github.com/esterkane/lernapp-updates/releases/latest):
 
-- **Windows 10/11 (64 Bit):** ZIP entpacken, `install.cmd` doppelklicken. Falls ein `Setup.exe` angeboten wird, kannst du stattdessen dieses starten.
-- **macOS:** die `.pkg`-Datei öffnen und der Installation folgen.
-- **Linux:** den heruntergeladenen Installer mit `bash lernapp-<Version>-linux-installer.sh` ausführen.
+- **Windows 10/11 (64-bit):** open `Lernapp-Setup-<version>.exe`. Alternatively, extract the Windows ZIP completely and double-click `install.cmd`.
+- **macOS:** open the `.pkg` file and follow the installer.
+- **Linux:** run the downloaded installer with `bash lernapp-<version>-linux-installer.sh`.
 
-Für die erste Installation brauchst du Internet. Python und benötigte Komponenten werden eingerichtet. Danach startest du „Lernapp“ über die angelegte Verknüpfung; die Oberfläche öffnet sich im Browser.
+The first installation needs an internet connection. Python and the required components are installed for you. Then open **Lernapp** using its shortcut; the app opens in your browser.
 
-**[Zum einfachen Benutzerhandbuch](docs/Benutzerhandbuch.md)**
+**[English user manual](docs/User-Manual.md) · [Deutsches Benutzerhandbuch](docs/Benutzerhandbuch.md)**
+
+The app currently uses German interface labels. The English manual explains those labels so you can find the right controls. Learning materials remain in their original language.
 
 ## Updates
 
-Die App prüft im Hintergrund auf neue Versionen. Unter **Einstellungen → App-Updates** kannst du jederzeit selbst prüfen und **Update herunterladen und installieren** wählen. Die App wird kurz geschlossen und startet danach wieder. Lerndaten und Einstellungen liegen getrennt von den App-Dateien und werden vor dem Wechsel gesichert.
+Lernapp checks for new versions in the background. Open **Einstellungen → App-Updates** (Settings → App updates) to check manually, then choose **Update herunterladen und installieren** (Download and install update). The app closes briefly and restarts when the update is ready. Learning data and settings are stored separately from app files and backed up before the version changes.
 
-Versionen vor 0.2.17 benötigen einmalig die Installation einer aktuellen Version, um diese Update-Funktion zu erhalten. Ein Update ist keine Wiederherstellung einer alten Lernstandsicherung.
+If you use a version older than 0.2.17, install a current version once to get the built-in updater. Do not restore an old learning backup as part of a normal app update.
 
-## Daten und laufende Kosten
+## Your data and running costs
 
-Deine Materialien, Antworten und Einstellungen werden lokal gespeichert. Dieses öffentliche Repository enthält keine persönlichen Lernstände, PDFs oder API-Schlüssel. Ein privates Lernpaket wird separat übertragen.
+Your materials, answers and settings are stored locally. This public repository contains no personal learning records, imported PDFs or API keys. A private learning pack is transferred separately.
 
-KI-Antworten und Online-Stimmen benötigen einen eigenen oder bereits eingerichteten Anbieterzugang und können Gebühren verursachen. Lokale Spracherkennung und lokale Stimme verarbeiten Audio auf dem Laptop. Details findest du in der App unter **Einstellungen → Kosten**.
+AI responses and online voices require a configured provider account and may incur charges. Local speech recognition and the local voice process audio on your laptop. Find usage information under **Einstellungen → Kosten** (Settings → Costs).
 
-App-Punkte sind interne Übungsergebnisse und kein offizielles TestDaF- oder Goethe-Prüfungsergebnis. Freie Schreib- und Sprechantworten benötigen eine inhaltliche Beurteilung.
+Scores are for practice only and are not official TestDaF or Goethe exam results. Written and spoken answers need a content review.
 
-## Für die Betreuung der App
+## Maintaining the app
 
-[Neue Versionen veröffentlichen](docs/Updates-veroeffentlichen.md). Der Quellcode und die plattformübergreifenden Installer liegen in diesem Repository. Betriebssystemspezifische Update-Tests bitte vor jeder Freigabe durchführen.
+See [Publishing updates (German)](docs/Updates-veroeffentlichen.md) for the release process. This repository contains the app source and installers for Windows, macOS and Linux. Run platform-specific update checks before each release.
