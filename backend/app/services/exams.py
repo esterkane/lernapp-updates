@@ -41,12 +41,19 @@ def audio_duration(data: bytes) -> float:
         with av.open(io.BytesIO(data), mode="r") as container:
             if not container.streams.audio:
                 raise ValueError("Keine Audiospur gefunden.")
-            duration = float(container.duration or 0) / av.time_base
-            if duration <= 0 or duration > 3 * 3600:
+            declared = float(container.duration or 0) / av.time_base
+            if declared > 3 * 3600:
                 raise ValueError("Die Audiodauer muss zwischen 0 und 180 Minuten liegen.")
+            duration = 0.0
+            for frame in container.decode(audio=0):
+                duration += frame.samples / frame.sample_rate
+                if duration > 3 * 3600:
+                    raise ValueError("Die Audiodauer muss zwischen 0 und 180 Minuten liegen.")
+            if duration <= 0 or declared - duration > 1:
+                raise ValueError("Audiodatei unvollständig.")
             return duration
     except Exception as exc:
-        raise ValueError("Audiodatei konnte nicht gelesen werden (MP3, WAV oder WEBM, höchstens 180 Minuten).") from exc
+        raise ValueError("Audiodatei ist unvollständig oder konnte nicht gelesen werden. Bitte die vollständige MP3-, WAV- oder WEBM-Datei auswählen (höchstens 180 Minuten).") from exc
 
 
 def create(owner: str, filename: str, pdf: bytes, audio: bytes | None = None, source: str = "") -> dict[str, Any]:
@@ -296,13 +303,57 @@ def save_progress(identifier: str, owner: str, answers: dict[str, str], position
         for key, answer in answers.items():
             if len(answer) > 20000 or (questions[key]["kind"] == "choice" and answer and answer not in questions[key]["options"]):
                 raise ValueError("Ungültige Antwort.")
-        progress = {"answers": {} if reset else {**previous.get("answers", {}), **answers},
+        progress: dict[str, Any] = {"answers": {} if reset else {**previous.get("answers", {}), **answers},
                     "position": 0 if reset else position, "revision": revision + 1,
                     "saved_at": now_utc().isoformat()}
+        progress["checked"] = {} if reset else {
+            key: item for key, item in previous.get("checked", {}).items()
+            if item["answer"] == progress["answers"].get(key)
+        }
         row.snapshot = {**row.snapshot, "_progress": progress}
         if reset:
             row.started_at = now_utc()
         return progress
+
+
+def check_answer(identifier: str, owner: str, question_id: str, answer: str, revision: int) -> dict[str, Any]:
+    """Reveal only the requested answer in an untimed listening lesson, and persist it."""
+    with db_session() as db:
+        row = owned(db, ExamAttempt, identifier, owner, lock=True)
+        if row.submitted_at or row.snapshot.get("source_format") != "webvtt" or row.snapshot.get("duration_minutes"):
+            raise ValueError("Einzelprüfung ist nur in einer laufenden Lesungsübung ohne Zeitlimit möglich.")
+        previous = row.snapshot.get("_progress", {})
+        if revision != previous.get("revision", 0):
+            raise HTTPException(409, "Der Lernstand wurde in einem anderen Fenster geändert. Bitte die Seite neu laden.")
+        q = next((q for q in row.snapshot["questions"] if q["id"] == question_id), None)
+        if q is None or not answer.strip() or len(answer) > 20000:
+            raise ValueError("Bitte eine gültige Antwort eingeben.")
+        if q["kind"] == "choice" and answer not in q["options"]:
+            raise ValueError("Ungültige Antwortoption.")
+        automatic = q["kind"] in ("choice", "text") and bool(q["answers"])
+        item = {"answer": answer, "correct": answer.strip() in [a.strip() for a in q["answers"]] if automatic else None,
+                "expected": q["answers"], "explanation": q["explanation"]}
+        progress = {**previous, "answers": {**previous.get("answers", {}), question_id: answer},
+                    "checked": {**previous.get("checked", {}), question_id: item},
+                    "position": next(i for i, q in enumerate(row.snapshot["questions"]) if q["id"] == question_id),
+                    "revision": revision + 1, "saved_at": now_utc().isoformat()}
+        row.snapshot = {**row.snapshot, "_progress": progress}
+        return progress
+
+
+def question_audio(identifier: str, owner: str, question_id: str) -> bytes:
+    from app.services.media_lessons import audio_clip
+
+    with db_session() as db:
+        attempt = owned(db, ExamAttempt, identifier, owner)
+        q = next((q for q in attempt.snapshot["questions"] if q["id"] == question_id), None)
+        if q is None or q.get("audio_start") is None or q.get("audio_end") is None:
+            raise ValueError("Für diese Aufgabe ist kein Hörabschnitt hinterlegt.")
+        exam = owned(db, Exam, attempt.exam_id, owner)
+        if not exam.audio:
+            raise ValueError("Keine Hördatei vorhanden.")
+        data = bytes(exam.audio)
+    return audio_clip(data, q["audio_start"], q["audio_end"])
 
 
 def submit(identifier: str, owner: str, answers: dict[str, str]) -> dict[str, Any]:

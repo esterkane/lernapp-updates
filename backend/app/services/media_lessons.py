@@ -181,6 +181,59 @@ _audio_lock = Lock()
 _audio_cache: OrderedDict[str, bytes] = OrderedDict()
 
 
+def audio_clip(data: bytes, start: float, end: float) -> bytes:
+    """Return only the question's samples, so playback cannot continue into the next answer."""
+    import math
+
+    import av
+
+    if not 0 <= start < end <= 10800:
+        raise ValueError("Ungültiger Hörabschnitt.")
+    key = f"clip:{hashlib.sha256(data).hexdigest()}:{start}:{end}"
+    with _audio_lock:
+        if key in _audio_cache:
+            _audio_cache.move_to_end(key)
+            return _audio_cache[key]
+        output = io.BytesIO()
+        samples = 0
+        with av.open(io.BytesIO(data), mode="r") as source, av.open(output, "w", format="mp3") as target:
+            stream = target.add_stream("libmp3lame", rate=44100)
+            stream.bit_rate = 64000
+            stream.layout = "mono"
+            resampler = av.AudioResampler(format="fltp", layout="mono", rate=44100)
+            if start > 1:
+                source.seek(int((start - 1) * av.time_base))
+            def encode(frame: Any) -> None:
+                nonlocal samples
+                if frame.time is None:
+                    raise ValueError("Hördatei enthält keine lesbaren Zeitmarken.")
+                first = max(0, math.ceil((start - frame.time) * 44100))
+                last = min(frame.samples, math.ceil((end - frame.time) * 44100))
+                if first >= last:
+                    return
+                clipped = av.AudioFrame.from_ndarray(frame.to_ndarray()[:, first:last].copy(), format="fltp", layout="mono")
+                clipped.sample_rate = 44100
+                samples += last - first
+                for packet in stream.encode(clipped):
+                    target.mux(packet)
+            for frame in source.decode(audio=0):
+                if frame.time is not None and frame.time > end + 0.1:
+                    break
+                for converted in resampler.resample(frame):
+                    encode(converted)
+            for converted in resampler.resample(None):
+                encode(converted)
+            if samples / 44100 < end - start - 0.1:
+                raise ValueError("Dieser Hörabschnitt fehlt in der Audiodatei. Bitte die vollständige Datei importieren.")
+            for packet in stream.encode(None):
+                target.mux(packet)
+        result = output.getvalue()
+        while _audio_cache and sum(map(len, _audio_cache.values())) + len(result) > 100 * 1024 * 1024:
+            _audio_cache.popitem(last=False)
+        _audio_cache[key] = result
+        return result
+
+
 def playback(data: bytes) -> bytes:
     """Decode WebM locally once to bounded MP3 for playback across desktop browsers."""
     if not data.startswith(b"\x1aE\xdf\xa3"):

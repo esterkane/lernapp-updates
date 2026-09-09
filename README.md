@@ -38,4 +38,4 @@ See [Publishing updates (German)](docs/Updates-veroeffentlichen.md) for the rele
 
 ### Listening lessons from your own recordings
 
-Import matching WEBM/MP3/WAV audio and WebVTT subtitles to prepare colloquial German explanations followed by listening and reading comprehension questions. Original text, timestamps and private learning-pack portability are preserved. See the [English manual](docs/User-Manual.md#listening-lessons-with-webm-and-vtt) or [German manual](docs/Benutzerhandbuch.md#lesungen-mit-webm-und-vtt).
+Import matching WEBM/MP3/WAV audio and WebVTT subtitles to prepare colloquial German explanations followed by listening and reading comprehension questions. Untimed lessons let you listen to a bounded clip, check one answer, and continue. Answers and checked feedback are saved for later. Prepared question time marks control where playback stops. Original text, timestamps and private learning-pack portability are preserved. See the [English manual](docs/User-Manual.md#listening-lessons-with-webm-and-vtt) or [German manual](docs/Benutzerhandbuch.md#lesungen-mit-webm-und-vtt).

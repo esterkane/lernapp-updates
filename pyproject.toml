@@ -1,6 +1,6 @@
 [project]
 name = "lernapp"
-version = "0.2.21"
+version = "0.2.22"
 description = "German learning app for TestDaF, work and negotiations, with local materials, practice tests and saved progress"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"

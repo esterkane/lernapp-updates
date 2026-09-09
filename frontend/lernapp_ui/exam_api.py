@@ -111,6 +111,14 @@ def reset_progress(attempt_id: str, revision: int) -> dict[str, Any]:
     return api._post(f"/exams/attempts/{attempt_id}/reset", {"revision": revision})
 
 
+def check_answer(attempt_id, question_id, answer, revision):
+    return api._post(f"/exams/attempts/{attempt_id}/questions/{question_id}/check", {"answer": answer, "revision": revision})
+
+
+def question_audio(attempt_id, question_id):
+    return api._request("GET", f"/exams/attempts/{attempt_id}/questions/{question_id}/audio", raw=True, timeout=120)
+
+
 def upload_media(transcript, audio, title):
     return api._request("POST", "/exams/media", files={
         "transcript": (transcript.name, transcript.getvalue(), "text/vtt"),

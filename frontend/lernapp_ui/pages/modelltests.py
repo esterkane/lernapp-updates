@@ -7,6 +7,7 @@ from uuid import uuid4
 
 import streamlit as st
 from lernapp_ui import api, exam_api, media_ui
+from lernapp_ui.exam_navigation import position_index
 
 st.title("📚 Modelltests")
 st.caption("Prüfungs-PDFs und Lesungen mit Transkript üben. Ergebnisse sind interne Übungsauswertungen.")
@@ -23,20 +24,21 @@ def practice(identifier):
     attempt = exam_api.attempt(identifier)
     test = attempt["test"]
     result = attempt.get("result")
+    guided = test.get("source_format") == "webvtt" and not test.get("duration_minutes")
     progress = attempt.get("progress") or {}
     bank_key = f"exam_answers_{identifier}"
     position_key = f"exam_position_{identifier}"
     revision_key = f"exam_progress_revision_{identifier}"
     error_key = f"exam_save_error_{identifier}"
     answers = st.session_state.setdefault(bank_key, dict(progress.get("answers", {})))
-    st.session_state.setdefault(position_key, progress.get("position", 0))
+    st.session_state[position_key] = position_index(st.session_state.get(position_key, progress.get("position", 0)), len(test["questions"]))
     st.session_state.setdefault(revision_key, progress.get("revision", 0))
 
     def persist():
         if result:
             return True
         try:
-            saved = exam_api.save_progress(identifier, dict(answers), st.session_state[position_key], st.session_state[revision_key])
+            saved = exam_api.save_progress(identifier, dict(answers), position_index(st.session_state[position_key], len(test["questions"])), st.session_state[revision_key])
         except api.ApiError as exc:
             st.session_state[error_key] = exc.message_de
             return False
@@ -92,26 +94,32 @@ def practice(identifier):
                     if identifier in name and name != "exam_active":
                         del st.session_state[name]
                 st.rerun()
-    position = st.selectbox(
-        "Aufgabe auswählen", range(len(questions)), key=position_key, on_change=persist,
-        format_func=lambda i: f"{i + 1}. {questions[i]['section']}" + (" · beantwortet" if answers.get(questions[i]["id"]) else ""),
-    )
+    position = st.session_state[position_key]
+    labels = [f"{i + 1}. {q['section']}" for i, q in enumerate(questions)]
+    selection_key = f"exam_selection_{identifier}_{position}"
+    def select_question():
+        st.session_state[position_key] = labels.index(st.session_state[selection_key])
+        persist()
+    with st.expander("Aufgabenübersicht"):
+        st.selectbox("Zu einer Aufgabe springen", labels, index=position, key=selection_key, on_change=select_question)
     def move(step):
         st.session_state[position_key] = max(0, min(len(questions) - 1, position + step))
         persist()
-    back, next_question = st.columns(2)
-    back.button("← Vorherige Aufgabe", disabled=position == 0, on_click=move, args=(-1,))
-    next_question.button("Weiter →", disabled=position == len(questions) - 1, on_click=move, args=(1,))
+    if not guided:
+        back, next_question = st.columns(2)
+        back.button("← Vorherige Aufgabe", disabled=position == 0, on_click=move, args=(-1,))
+        next_question.button("Weiter →", disabled=position == len(questions) - 1, on_click=move, args=(1,))
     shown_source_pages = set()
     shown_passages = set()
     marked = {q["id"]: q for q in result["items"]} if result else {}
     for q in [questions[position]]:
         st.subheader(f"Aufgabe {position + 1} von {len(questions)} · {q['section']}")
         if test.get("source_format") == "webvtt":
-            st.caption(f"Lernabschnitt {q['page']} · Automatische Untertitel können Erkennungsfehler enthalten.")
-            with st.expander("1. Umgangssprache verstehen", expanded=True):
+            st.caption(f"Lernabschnitt {q['page']}")
+            with st.expander("Wörter und Umgangssprache verstehen", expanded=False):
                 media_ui.notes([n for n in test.get("learning_notes", []) if n["section"] == q["page"]])
-            st.markdown("**2. Hören / Lesen und Fragen beantworten**")
+            st.write(q["question"])
+            st.caption("1. Abschnitt anhören oder lesen → 2. Antworten und prüfen → 3. Fortsetzen")
         if q.get("instructions"):
             st.write(q["instructions"])
         if q.get("passage") and q["passage"] not in shown_passages:
@@ -137,8 +145,15 @@ def practice(identifier):
                 st.image(st.session_state[cache_key], width="stretch")
         if test.get("audio_seconds"):
             if q.get("audio_start") is not None:
-                st.audio(sound(attempt["exam_id"]), start_time=q["audio_start"], end_time=q.get("audio_end"))
-                st.caption("Hörabschnitt zu dieser Aufgabe.")
+                if guided:
+                    clip_key = f"exam_clip_{identifier}_{q['id']}"
+                    if clip_key not in st.session_state:
+                        st.session_state[clip_key] = exam_api.question_audio(identifier, q["id"])
+                    st.audio(st.session_state[clip_key], format="audio/mpeg")
+                    st.caption("Die Aufnahme endet hier automatisch. Beantworte anschließend die Frage.")
+                else:
+                    st.audio(sound(attempt["exam_id"]), start_time=q["audio_start"], end_time=q.get("audio_end"))
+                    st.caption("Hörabschnitt zu dieser Aufgabe.")
             else:
                 with st.expander("Hördatei zum Test öffnen"):
                     if st.checkbox("Hördatei abspielen", key=f"exam_play_{identifier}"):
@@ -174,7 +189,7 @@ def practice(identifier):
             if item.get("explanation"):
                 st.write(item["explanation"])
         elif q["kind"] == "choice":
-            answers[q["id"]] = st.radio(q["question"], q["options"], index=None, key=key, on_change=remember) or ""
+            answers[q["id"]] = st.radio("Deine Antwort" if guided else q["question"], q["options"], index=None, key=key, on_change=remember) or ""
         else:
             answers[q["id"]] = st.text_area(
                 q["question"],
@@ -183,8 +198,34 @@ def practice(identifier):
                 on_change=remember,
                 help="Bei Sprechaufgaben kannst du dein Transkript oder Notizen eintragen.",
             )
+        if guided and not result:
+            checked = progress.get("checked", {}).get(q["id"])
+            if checked and checked["answer"] != answers.get(q["id"]):
+                checked = None
+            if st.button("Antwort prüfen", type="primary", disabled=not answers.get(q["id"], "").strip(), key=f"exam_check_{identifier}_{q['id']}"):
+                try:
+                    saved = exam_api.check_answer(identifier, q["id"], answers[q["id"]], st.session_state[revision_key])
+                    st.session_state[revision_key] = saved["revision"]
+                    st.session_state.pop(error_key, None)
+                    st.rerun()
+                except api.ApiError as exc:
+                    st.error("Antwort konnte noch nicht geprüft werden: " + exc.message_de)
+            if checked:
+                if checked["correct"] is True:
+                    st.success("Richtig!")
+                elif checked["correct"] is False:
+                    st.info("Noch nicht richtig. Richtige Antwort: " + " / ".join(checked["expected"]))
+                else:
+                    st.info("Vergleiche deine Antwort mit der Musterlösung: " + " / ".join(checked["expected"]))
+                st.write(checked["explanation"])
+            if position < len(questions) - 1:
+                st.button("Weiter zum nächsten Abschnitt →", disabled=not checked, on_click=move, args=(1,))
+            elif checked and st.button("Übung abschließen und Ergebnis ansehen", type="primary"):
+                exam_api.submit(identifier, dict(answers))
+                st.rerun()
+            st.button("← Vorherige Aufgabe", disabled=position == 0, on_click=move, args=(-1,))
         st.divider()
-    if not result:
+    if not result and not guided:
         unanswered = len(questions) - sum(bool(value.strip()) for value in answers.values())
         if unanswered:
             st.caption(f"Noch {unanswered} Aufgaben offen. Du kannst sie über die Aufgabenauswahl erreichen.")

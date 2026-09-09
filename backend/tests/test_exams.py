@@ -495,17 +495,17 @@ def test_progress_ui_return_resume_fresh_session_and_reset(client, exam, monkeyp
     next(b for b in ui.button if b.label == 'Test starten').click().run()
     aid = ui.session_state['exam_active']
     ui.radio(key=f'exam_answer_{aid}_q1').set_value('ja').run()
-    ui.selectbox(key=f'exam_position_{aid}').set_value(1).run()
+    ui.selectbox(key=f'exam_selection_{aid}_0').set_value(ui.selectbox(key=f'exam_selection_{aid}_0').options[1]).run()
     ui.text_area(key=f'exam_answer_{aid}_q2').set_value('Bitte zahlen Sie.').run()
     ui.button(key=f'exam_overview_{aid}').click().run()
     assert not ui.exception
     fresh = AppTest.from_file(str(path)).run()
     next(b for b in fresh.button if b.label == 'Gespeicherte Übung fortsetzen').click().run()
-    assert fresh.selectbox(key=f'exam_position_{aid}').value == 1
+    assert fresh.session_state[f'exam_position_{aid}'] == 1
     assert fresh.text_area(key=f'exam_answer_{aid}_q2').value == 'Bitte zahlen Sie.'
     fresh.checkbox(key=f'exam_reset_confirm_{aid}').check().run()
     fresh.button(key=f'exam_reset_{aid}').click().run()
     assert not fresh.exception
-    assert fresh.selectbox(key=f'exam_position_{aid}').value == 0
+    assert fresh.session_state[f'exam_position_{aid}'] == 0
     assert fresh.radio(key=f'exam_answer_{aid}_q1').value is None
     assert exams.get_attempt(aid, owner)['progress']['answers'] == {}

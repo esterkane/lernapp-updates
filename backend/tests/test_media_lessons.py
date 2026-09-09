@@ -159,6 +159,7 @@ def test_media_editor_and_practice_ui(client, monkeypatch):
     exams.save(eid, owner, ExamDraft.model_validate(data['draft']), True, data['revision'])
     attempt = exams.start(eid, owner, False)
     monkeypatch.setattr(exam_api, 'attempt', lambda _: exams.get_attempt(attempt['id'], owner))
+    monkeypatch.setattr(exam_api, 'question_audio', lambda aid, qid: exams.question_audio(aid, owner, qid))
     practice = AppTest.from_file(str(path))
     practice.session_state['exam_active'] = attempt['id']
     practice.run()

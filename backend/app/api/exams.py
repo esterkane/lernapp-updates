@@ -41,6 +41,11 @@ class ResetProgress(BaseModel):
     revision: int = Field(ge=0)
 
 
+class CheckAnswer(BaseModel):
+    answer: str = Field(min_length=1, max_length=20000)
+    revision: int = Field(ge=0)
+
+
 def run(fn: Any, *args: Any) -> Any:
     try:
         return fn(*args)
@@ -107,6 +112,16 @@ def progress(attempt_id: str, body: Progress) -> Any:
 @router.post("/attempts/{attempt_id}/reset")
 def reset_progress(attempt_id: str, body: ResetProgress) -> Any:
     return run(exams.save_progress, attempt_id, current_workspace(), {}, 0, body.revision, True)
+
+
+@router.post("/attempts/{attempt_id}/questions/{question_id}/check")
+def check_answer(attempt_id: str, question_id: str, body: CheckAnswer) -> Any:
+    return run(exams.check_answer, attempt_id, current_workspace(), question_id, body.answer, body.revision)
+
+
+@router.get("/attempts/{attempt_id}/questions/{question_id}/audio")
+def question_audio(attempt_id: str, question_id: str) -> Response:
+    return Response(run(exams.question_audio, attempt_id, current_workspace(), question_id), media_type="audio/mpeg")
 
 
 @router.get("/{exam_id}/editor")
