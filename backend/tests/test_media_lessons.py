@@ -167,3 +167,13 @@ def test_media_editor_and_practice_ui(client, monkeypatch):
     assert any(e.label == 'Transkript als Lesehilfe anzeigen' for e in practice.expander)
     assert not any('HIDDEN_SOLUTION' in m.value for m in practice.markdown)
     assert any(b.label == '← Zurück zur Übersicht' for b in practice.button)
+
+
+def test_short_closing_fragment_stays_with_its_context():
+    chunks = media.sections([
+        {"start": 0, "end": 230, "text": "This song is a list of movie titles. " * 30},
+        {"start": 240, "end": 250, "text": "Another title. Thank you."},
+    ])
+    assert len(chunks) == 1
+    assert chunks[0]["end"] == 250
+    assert chunks[0]["text"].endswith("Another title. Thank you.")

@@ -94,6 +94,11 @@ def sections(cues: list[dict[str, Any]]) -> list[dict[str, Any]]:
         else:
             chunks[-1]["text"] += " " + cue["text"]
             chunks[-1]["end"] = cue["end"]
+    # A tiny closing fragment needs the preceding context (e.g. a list of film titles).
+    if len(chunks) > 1 and len(chunks[-1]["text"]) < 500:
+        tail = chunks.pop()
+        chunks[-1]["text"] += " " + tail["text"]
+        chunks[-1]["end"] = tail["end"]
     if len(chunks) > 40:
         raise ValueError("Bitte eine kürzere Lesung verwenden (höchstens 40 Lernabschnitte).")
     return chunks
