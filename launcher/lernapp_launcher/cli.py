@@ -924,6 +924,8 @@ def cmd_transfer(args: argparse.Namespace) -> int:
             raise TransferError("Die Passwörter stimmen nicht überein.")
         init_db()
         if args.command == "backup":
+            from app.core import credentials
+            credentials.ensure_encryption_key()
             content, counts = export_backup(password)
             with path.open("xb") as handle:
                 os.chmod(path, 0o600)

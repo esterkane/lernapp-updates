@@ -1,7 +1,7 @@
 """BYOK provider credentials, encrypted at rest (cost-tracking model, ADR-0019).
 
-- Ciphertext lives in ``provider_credentials``; the Fernet key comes from ``CREDENTIAL_ENCRYPTION_KEY``
-  (environment / ``<data_dir>/.env``), never from the database.
+- Ciphertext lives in ``provider_credentials``. macOS Keychain / Windows user-scoped DPAPI protect
+  the Fernet key. Linux and explicit test environments retain the legacy environment-key backend.
 - Plaintext keys exist only transiently inside the backend when a provider call is made.
 - The API never returns a full key: ``CredentialView.masked`` shows the last three characters only.
 - Environment keys (``OPENAI_API_KEY`` …) remain a fallback for developers; on startup any key found in
@@ -64,9 +64,27 @@ class CredentialView(BaseModel):
     last_test_message: str | None = None
 
 
+def native_store_enabled() -> bool:
+    from lernapp_launcher import credential_store
+
+    return credential_store.supported() and get_settings().app_env != "test"
+
+
 def _fernet() -> Fernet:
     from cryptography.fernet import Fernet
 
+    if native_store_enabled():
+        from lernapp_launcher import credential_store
+
+        try:
+            protected = credential_store.read(data_dir())
+        except credential_store.StorageError as exc:
+            raise CredentialError(str(exc)) from None
+        if not protected:
+            raise CredentialError(
+                "Der Geräteschlüssel fehlt. Bitte Lernapp neu starten oder den OS-Schlüsselspeicher entsperren."
+            )
+        return Fernet(protected)
     key = get_settings().credential_encryption_key or os.environ.get("CREDENTIAL_ENCRYPTION_KEY")
     if not key:
         raise CredentialError("CREDENTIAL_ENCRYPTION_KEY fehlt – Schlüssel können nicht gespeichert werden.")
@@ -74,7 +92,9 @@ def _fernet() -> Fernet:
 
 
 def ensure_encryption_key() -> bool:
-    """Create CREDENTIAL_ENCRYPTION_KEY in <data_dir>/.env on first start. Returns True when created."""
+    """Migrate/create OS-protected desktop key; legacy file backend on Linux/test only."""
+    if native_store_enabled():
+        return _migrate_native_key()
     if get_settings().credential_encryption_key or os.environ.get("CREDENTIAL_ENCRYPTION_KEY"):
         return False
     from cryptography.fernet import Fernet
@@ -91,6 +111,55 @@ def ensure_encryption_key() -> bool:
     reload_settings()
     log.info("generated CREDENTIAL_ENCRYPTION_KEY in %s", env_path)
     return True
+
+
+def _migrate_native_key() -> bool:
+    from cryptography.fernet import Fernet, InvalidToken
+    from lernapp_launcher import credential_store
+
+    root = data_dir()
+    legacy = get_settings().credential_encryption_key or os.environ.get("CREDENTIAL_ENCRYPTION_KEY")
+    try:
+        protected = credential_store.read(root)
+        with db_session() as db:
+            rows = list(
+                db.scalars(
+                    select(ProviderCredential).where(ProviderCredential.ciphertext.is_not(None)).with_for_update()
+                )
+            )
+            if protected is None and not legacy and rows:
+                raise CredentialError(
+                    "Der Schlüssel zu vorhandenen Zugangsdaten fehlt. Es wird kein Ersatzschlüssel erzeugt."
+                )
+            key = protected or Fernet.generate_key()
+            cipher = Fernet(key)
+            old_cipher = Fernet(legacy.encode()) if legacy else None
+            replacements = []
+            for row in rows:
+                assert row.ciphertext is not None
+                try:
+                    cipher.decrypt(row.ciphertext.encode())
+                except InvalidToken:
+                    if old_cipher is None:
+                        raise
+                    plaintext = old_cipher.decrypt(row.ciphertext.encode())
+                    replacements.append((row, cipher.encrypt(plaintext).decode()))
+            # Native write/readback precedes the DB commit. Interrupted migrations can resume
+            # using the still-present legacy key; already-migrated rows also decrypt correctly.
+            credential_store.write(root, key)
+            for row, ciphertext in replacements:
+                row.ciphertext = ciphertext
+        # Only after native readback and database decryption succeeded.
+        credential_store.strip_legacy(root / ".env")
+        os.environ.pop("CREDENTIAL_ENCRYPTION_KEY", None)
+        reload_settings()
+        return protected is None
+    except (InvalidToken, ValueError):
+        raise CredentialError(
+            "Vorhandene Zugangsdaten konnten nicht geprüft werden. Der alte Schlüssel bleibt erhalten."
+        ) from None
+    except credential_store.StorageError as exc:
+        raise CredentialError(str(exc)) from None
 
 
 def mask(hint: str | None) -> str | None:

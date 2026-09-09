@@ -167,6 +167,11 @@ def restore_backup(content: bytes, password: str) -> dict[str, int]:
                     raise TransferError("Hier sind bereits eigene Daten gespeichert. Die Übernahme ist nur in einer neuen Installation möglich.")
             folder.mkdir(mode=0o700)
             new_key = Fernet.generate_key()
+            native_store = credentials.native_store_enabled()
+            if native_store:
+                from lernapp_launcher import credential_store
+                new_key = credential_store.read(destination) or new_key
+                credential_store.write(destination, new_key)
             target_cipher = Fernet(new_key)
 
             def materialize(name: str, filename: str | None = None) -> Path:
@@ -210,7 +215,8 @@ def restore_backup(content: bytes, password: str) -> dict[str, int]:
             for original in manifest.get("originals", []):
                 materialize(original["asset"], original["name"])
             values = {key.upper(): value for key, value in manifest["settings"].items() if key in SETTINGS}
-            values["CREDENTIAL_ENCRYPTION_KEY"] = new_key.decode()
+            if not native_store:
+                values["CREDENTIAL_ENCRYPTION_KEY"] = new_key.decode()
             if manifest.get("audio_key"):
                 values["AUDIO_ENCRYPTION_KEY"] = manifest["audio_key"]
             if manifest.get("google_credentials"):

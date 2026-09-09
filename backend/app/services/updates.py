@@ -142,6 +142,7 @@ def _download_and_launch(release: dict[str, Any]) -> None:
             raise ValueError("Download checksum mismatch")
         worker = home / "update_worker.py"
         shutil.copy2(repo_root() / "launcher/lernapp_launcher/update_worker.py", worker)
+        shutil.copy2(repo_root() / "launcher/lernapp_launcher/credential_store.py", home / "credential_store.py")
         uv = shutil.which("uv") or str(Path.home() / ".local/bin" / ("uv.exe" if os.name == "nt" else "uv"))
         if not Path(uv).is_file():
             raise ValueError("uv missing")

@@ -53,9 +53,19 @@ Online-Vorlesen und Online-Hörproben werden über den verbundenen Anbieter abge
 
 Öffne **Einstellungen → Kosten → Anbieterabrechnung prüfen** und danach **Anbieterbeträge direkt abrufen**. Gib deinen OpenAI-Admin-API-Schlüssel ein und klicke **Schlüssel auf diesem Gerät speichern**.
 
-Der Schlüssel wird verschlüsselt für den aktuellen Lernbereich auf diesem Laptop gespeichert. Beim nächsten Mal lässt du das Passwortfeld leer und klickst **Abrechnung abrufen**. Über denselben Speicherknopf kannst du den Schlüssel ersetzen. **Gespeicherten Admin-Schlüssel entfernen** löscht ihn aus Lernapp; bei OpenAI wird er dadurch nicht widerrufen.
+Der Schlüssel wird verschlüsselt für den aktuellen Lernbereich auf diesem Laptop gespeichert. Unter macOS schützt der Schlüsselbund den Entschlüsselungsschlüssel; unter Windows übernimmt DPAPI den Schutz für dein Windows-Konto. Beim nächsten Mal lässt du das Passwortfeld leer und klickst **Abrechnung abrufen**. Über denselben Speicherknopf kannst du den Schlüssel ersetzen. **Gespeicherten Admin-Schlüssel entfernen** löscht ihn aus Lernapp; bei OpenAI wird er dadurch nicht widerrufen.
 
 Für einen einmaligen Abruf gibst du den Schlüssel ein und klickst **Abrechnung abrufen**, ohne ihn zu speichern. Der Abrechnungsschlüssel ist vom normalen OpenAI-Schlüssel fürs Lernen getrennt. Er bleibt bei App-Updates erhalten, wird aber nicht in geteilte `.lernapp`-Lernpakete übernommen. Empfänger können ihren eigenen Abrechnungsschlüssel hinterlegen.
+
+### Schlüsselschutz und Wiederherstellung
+
+Ab Version 0.2.20 werden bestehende Anbieter- und Abrechnungsschlüssel unter Windows und macOS automatisch in den OS-geschützten Speicher überführt. Nach erfolgreicher Prüfung entfernt die App den bisherigen unverschlüsselten Entschlüsselungsschlüssel aus `.env`. Bekannte lokale Update- und App-Sicherungen werden nach erfolgreichem Update ebenfalls geschützt.
+
+Falls macOS nach Schlüsselbundzugriff fragt, erlaube ihn nur beim Starten oder Benutzen von Lernapp. Ist der OS-Speicher gesperrt oder nicht verfügbar, erscheint ein Fehler; es gibt keinen Rückfall auf einen unverschlüsselten Entschlüsselungsschlüssel.
+
+Für einen anderen Laptop nutze eine passwortgeschützte `.lernapp`-Übertragung. Normale Anbieterzugänge können so mitkommen, Admin-Schlüssel müssen separat eingegeben werden. Kopiere den Datenordner nicht einfach in ein anderes OS-Konto. Lösche weder den Schlüsselbundeintrag noch den Windows-Ordner `os-secrets`. Ältere lokale Wiederherstellungssicherungen benötigen das ursprüngliche OS-Konto und dessen Schlüsselspeicher; kontaktiere vor einer Wiederherstellung die Betreuung.
+
+Dieser Schutz hilft gegen kopierte Schlüsseldateien, schützt aber nicht vor einem kompromittierten oder entsperrten Benutzerkonto. Externe Kopien alter Sicherungen kann die App nicht nachträglich ändern. Linux verwendet weiterhin den bisherigen dateibasierten Schlüsselschutz.
 
 ## 6. Materialien und Links
 

@@ -61,9 +61,19 @@ Online reading and online voice samples are billed by the connected provider. Lo
 
 Open **Einstellungen → Kosten → Anbieterabrechnung prüfen** (Settings → Costs → Check provider billing), then expand **Anbieterbeträge direkt abrufen** (Retrieve provider amounts). Enter your OpenAI admin API key and click **Schlüssel auf diesem Gerät speichern** (Save key on this device).
 
-The key is encrypted and saved for the current learning area on this laptop. Next time, leave the password field empty and click **Abrechnung abrufen** (Retrieve billing). You can replace the saved key using the same save button, or choose **Gespeicherten Admin-Schlüssel entfernen** (Remove saved admin key). Removing it from Lernapp does not revoke it at OpenAI.
+The key is encrypted and saved for the current learning area on this laptop. On macOS, Keychain protects the unlocking key; on Windows, DPAPI protects it for your Windows account. Next time, leave the password field empty and click **Abrechnung abrufen** (Retrieve billing). You can replace the saved key using the same save button, or choose **Gespeicherten Admin-Schlüssel entfernen** (Remove saved admin key). Removing it from Lernapp does not revoke it at OpenAI.
 
 If you only want to use a key once, enter it and click **Abrechnung abrufen** without saving. The billing key is separate from the normal OpenAI key used for learning. It survives app updates but is excluded from shared `.lernapp` learning packs; each recipient can save their own billing key.
+
+### Credential protection and recovery
+
+Version 0.2.20 automatically migrates existing saved provider and billing keys to OS-protected storage on Windows and macOS. It removes the old plaintext unlocking key from the app's `.env` file after verifying the migrated credentials. Known local update and app backup configurations are also protected after the update succeeds.
+
+If macOS asks for Keychain access, allow it only when you are starting or using Lernapp. A locked or unavailable OS key store causes an error; the app does not fall back to storing the unlocking key in plaintext.
+
+Use a password-protected `.lernapp` export to move normal provider connections and learning data to another laptop. Billing admin keys must be entered separately. Simply copying the data folder to another OS account is not a supported credential transfer. Do not delete the Keychain entry or the Windows `os-secrets` folder. Older recovery backups need the original OS account and its key store; contact the app maintainer before restoring them.
+
+This protects copied credential files, but does not make a compromised or unlocked user account safe. External copies of old backups cannot be changed by the app. Linux currently retains the previous file-based encryption-key storage and does not have the Windows/macOS protection described above.
 
 ## 6. Add materials and links
 

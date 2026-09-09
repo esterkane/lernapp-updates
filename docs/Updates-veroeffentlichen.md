@@ -20,3 +20,14 @@ Bei einem Installations- oder Startfehler wird die alte App wiederhergestellt; n
 Ein harter Stromausfall kann eine Neuinstallation des normalen Installers nötig machen. Die Daten liegen weiterhin außerhalb der App. Wenn eine Migration schon gestartet war, vor einer manuellen Datenbankwiederherstellung immer die aktuelle Datenbank separat sichern und beide Versionen vergleichen.
 
 App-Updates verteilen Programmänderungen. Persönliche Quellen und Lernstände werden nicht über öffentliche Releases verteilt und nicht überschrieben.
+
+
+## OS-geschützte Zugangsdaten ab 0.2.20
+
+Windows nutzt benutzergebundenes DPAPI; macOS nutzt Keychain über die nativen Security-APIs. Linux und explizite Testumgebungen behalten das bisherige Backend. Bei einer Migration wird zuerst ein neuer OS-Schlüssel geschrieben und zurückgelesen, dann werden Zugangsdaten in einer Datenbanktransaktion neu verschlüsselt. Erst danach wird der alte Schlüssel aus `.env` entfernt. Unterbrechungen können mit den vorhandenen OS- und Alt-Schlüsseln fortgesetzt werden; ein fehlender Schlüssel wird bei vorhandenen Zugangsdaten nicht blind ersetzt.
+
+Nach Ende eines laufenden Updates schützt die App bekannte `.env`-Sicherungen unter `updates/version-*/backup-data` und `backups/`. Die vollständige alte Konfiguration liegt anschließend im OS-Speicher; `.env.os-protected` enthält nur einen Verweis. Diese Sicherungen benötigen das ursprüngliche Konto und den ursprünglichen Lernapp-Datenordner samt `os-secrets` unter Windows. Extern abgelegte Kopien sind nicht erfasst.
+
+Bei einer betreuten Wiederherstellung liefert `lernapp_launcher.credential_store.backup_env(data_dir, backup_dir)` die ursprüngliche Konfiguration als Bytes. Diese Bytes niemals ausgeben oder öffentlich speichern. Der neue Updater verwendet diese Funktion für Rollbacks. Alte Installer/Updater vor 0.2.20 kennen diesen Verweis nicht; solche Sicherungen nicht ungeprüft mit einer alten Version wiederherstellen. Die Umstellung von 0.2.19 schützt ihre Rückfallsicherung erst, nachdem der alte Updater erfolgreich beendet ist.
+
+Die CI prüft native Keychain-/DPAPI-Aufrufe, Prozessneustart und Sicherungswiederherstellung auf macOS und Windows. Datenbankmigration, gesperrter Speicher, fehlende Schlüssel, Unterbrechung nach Commit und portable Übertragung werden zusätzlich mit isolierten Datenbanken getestet. Lokale OS-Sicherheit ersetzt keinen Schutz gegen Malware im angemeldeten Konto.

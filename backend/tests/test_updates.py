@@ -147,3 +147,15 @@ def test_background_check_starts_on_freshly_booted_laptop(monkeypatch):
     monkeypatch.setattr(updates.threading, "Thread", Thread)
     updates.cached_status()
     assert started == [True]
+
+
+def test_copied_update_worker_loads_without_app_virtualenv(tmp_path):
+    import shutil
+    import subprocess
+    import sys
+    from pathlib import Path
+    source = Path(worker.__file__).parent
+    for name in ("update_worker.py", "credential_store.py"):
+        shutil.copy2(source / name, tmp_path / name)
+    result = subprocess.run([sys.executable, "-I", "-c", "import runpy,sys; runpy.run_path(sys.argv[1], run_name='worker_test')", str(tmp_path / "update_worker.py")], capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr

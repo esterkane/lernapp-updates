@@ -16,8 +16,13 @@ from dotenv import dotenv_values
 from sqlalchemy import create_engine, select, text
 
 
-@pytest.fixture()
-def installation(tmp_path, monkeypatch):
+@pytest.fixture(params=[False, True], ids=["legacy", "native"])
+def installation(tmp_path, monkeypatch, request):
+    from lernapp_launcher import credential_store
+    keys = {}
+    monkeypatch.setattr(transfer.credentials, 'native_store_enabled', lambda: request.param)
+    monkeypatch.setattr(credential_store, 'read', lambda root: keys.get(str(root)))
+    monkeypatch.setattr(credential_store, 'write', lambda root, key: keys.setdefault(str(root), key))
     root = get_engine()
     engines = []
     schemas = []
@@ -79,7 +84,12 @@ def test_transfer_preserves_assets_vectors_reviews_credentials_and_audio(install
         assert list(conn.execute(select(Chunk.embedding)).scalar_one()) == pytest.approx([0.1, 0.2])
         assert conn.execute(select(Chunk.tsv)).scalar_one()
         encrypted_key = conn.execute(select(ProviderCredential.ciphertext)).scalar_one()
-        new_key = dotenv_values(dest / '.env')['CREDENTIAL_ENCRYPTION_KEY']
+        if transfer.credentials.native_store_enabled():
+            from lernapp_launcher import credential_store
+            assert 'CREDENTIAL_ENCRYPTION_KEY' not in (dest / '.env').read_text()
+            new_key = credential_store.read(dest).decode()
+        else:
+            new_key = dotenv_values(dest / '.env')['CREDENTIAL_ENCRYPTION_KEY']
         assert Fernet(new_key.encode()).decrypt(encrypted_key.encode()) == b'sk-test-transfer-private'
         assert new_key.encode() != old_cipher._signing_key
         audio = conn.execute(select(AudioFile.path)).scalar_one()

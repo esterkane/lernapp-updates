@@ -81,6 +81,14 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
         credentials.ensure_encryption_key()
         credentials.migrate_env_keys(get_settings().default_learner_id)
+        if credentials.native_store_enabled():
+            import threading
+
+            from lernapp_launcher.credential_store import finish_backup_migration
+
+            from app.core.paths import data_dir
+
+            threading.Thread(target=finish_backup_migration, args=(data_dir(),), daemon=True).start()
     except Exception:  # noqa: BLE001
         log.exception("credential store initialisation failed")
     try:
@@ -103,7 +111,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Lernapp API", version="0.2.19", lifespan=lifespan, dependencies=[Depends(enforce_workspace)])
+    app = FastAPI(title="Lernapp API", version="0.2.20", lifespan=lifespan, dependencies=[Depends(enforce_workspace)])
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["http://localhost", "http://127.0.0.1"],

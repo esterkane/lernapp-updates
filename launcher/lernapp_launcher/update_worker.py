@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 import os
 import shutil
@@ -15,6 +16,12 @@ import urllib.request
 import uuid
 import zipfile
 from pathlib import Path, PurePosixPath
+
+# The API copies this trusted helper beside the worker. Base Python has no app virtualenv.
+_store_spec = importlib.util.spec_from_file_location("_lernapp_update_store", Path(__file__).with_name("credential_store.py"))
+assert _store_spec is not None and _store_spec.loader is not None
+_store = importlib.util.module_from_spec(_store_spec)
+_store_spec.loader.exec_module(_store)
 
 
 def unpack(archive: Path, destination: Path, version: str, digest: str) -> None:
@@ -186,8 +193,9 @@ def run(request: Path) -> None:
                     (data / "pg").rename(job / "failed-pg")
                 if (backup / "pg").exists():
                     shutil.copytree(backup / "pg", data / "pg")
-                if (backup / ".env").exists():
-                    shutil.copy2(backup / ".env", data / ".env")
+                restored_env = _store.backup_env(data, backup)
+                if restored_env is not None:
+                    (data / ".env").write_bytes(restored_env)
         if stopped:
             start(app, data)
         status(

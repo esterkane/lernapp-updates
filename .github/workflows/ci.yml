@@ -68,3 +68,19 @@ jobs:
           uv run lernapp --help
           uv run lernapp version
           uv run lernapp doctor || true
+
+  native-credential-storage:
+    name: Native credential storage (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Native store, restart and protected backup recovery
+        run: python scripts/test_native_credentials.py
