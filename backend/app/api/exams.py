@@ -7,7 +7,7 @@ from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
 from app.core.workspaces import current_workspace
-from app.services import exam_import_jobs, exam_pages, exam_sources, exams, llm
+from app.services import exam_import_jobs, exam_pages, exam_sources, exams, llm, media_lessons
 from app.services.exam_schemas import ExamDraft
 
 router = APIRouter(prefix="/exams", tags=["model tests"])
@@ -76,6 +76,14 @@ async def upload(file: UploadFile = File(...), audio: UploadFile | None = File(N
     )
 
 
+@router.post("/media")
+async def upload_media(transcript: UploadFile = File(...), audio: UploadFile = File(...), title: str = Form("")) -> Any:
+    text = await transcript.read(media_lessons.VTT_LIMIT + 1)
+    sound = await audio.read(exams.AUDIO_LIMIT + 1)
+    return await run_in_threadpool(run, media_lessons.create, current_workspace(),
+                                  title or (transcript.filename or "Lesung").rsplit(".", 1)[0], text, sound)
+
+
 @router.get("/attempts")
 def history() -> Any:
     return exams.attempts(current_workspace())
@@ -122,9 +130,13 @@ def start(exam_id: str, body: Start) -> Any:
 
 
 @router.get("/{exam_id}/assets/{kind}")
-def asset(exam_id: str, kind: Literal["pdf", "audio"]) -> Response:
+def asset(exam_id: str, kind: Literal["pdf", "audio", "source_audio", "transcript"]) -> Response:
     data = exams.asset(exam_id, current_workspace(), kind)
-    mime = "application/pdf" if kind == "pdf" else ("audio/wav" if data.startswith(b"RIFF") else "audio/mpeg")
+    if kind == "audio":
+        data = run(media_lessons.playback, data)
+    mime = {"pdf": "application/pdf", "transcript": "text/vtt"}.get(kind) or (
+        "audio/webm" if data.startswith(b"\x1aE\xdf\xa3") else "audio/wav" if data.startswith(b"RIFF") else "audio/mpeg"
+    )
     return Response(data, media_type=mime, headers={"Cache-Control": "no-store"})
 
 

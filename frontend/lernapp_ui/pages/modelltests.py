@@ -6,10 +6,10 @@ from datetime import UTC, datetime
 from uuid import uuid4
 
 import streamlit as st
-from lernapp_ui import api, exam_api
+from lernapp_ui import api, exam_api, media_ui
 
 st.title("📚 Modelltests")
-st.caption("Eigene Prüfungs-PDFs mit passenden Hördateien üben. Ergebnisse sind interne Übungsauswertungen.")
+st.caption("Prüfungs-PDFs und Lesungen mit Transkript üben. Ergebnisse sind interne Übungsauswertungen.")
 
 
 def sound(exam_id):
@@ -107,12 +107,21 @@ def practice(identifier):
     marked = {q["id"]: q for q in result["items"]} if result else {}
     for q in [questions[position]]:
         st.subheader(f"Aufgabe {position + 1} von {len(questions)} · {q['section']}")
+        if test.get("source_format") == "webvtt":
+            st.caption(f"Lernabschnitt {q['page']} · Automatische Untertitel können Erkennungsfehler enthalten.")
+            with st.expander("1. Umgangssprache verstehen", expanded=True):
+                media_ui.notes([n for n in test.get("learning_notes", []) if n["section"] == q["page"]])
+            st.markdown("**2. Hören / Lesen und Fragen beantworten**")
         if q.get("instructions"):
             st.write(q["instructions"])
         if q.get("passage") and q["passage"] not in shown_passages:
             shown_passages.add(q["passage"])
-            with st.container(border=True):
-                st.write(q["passage"])
+            if test.get("source_format") == "webvtt" and "Hör" in q.get("section", ""):
+                with st.expander("Transkript als Lesehilfe anzeigen", expanded=bool(result)):
+                    st.write(q["passage"])
+            else:
+                with st.container(border=True):
+                    st.write(q["passage"])
         show_original = st.checkbox(
             "Originalseiten mit Abbildungen anzeigen", value=not bool(q.get("passage")),
             key=f"original_{identifier}_{q['id']}",
@@ -188,114 +197,118 @@ def edit(selected):
     data = exam_api.editor(selected)
     draft = data["draft"]
     questions = draft.get("questions", [])
-    st.subheader("Import zum Üben vorbereiten")
-    if len(data.get("extracted_pages", [])) < len(data["pages"]):
-        st.info(
-            "Schritt 1 von 2: Die Dateien sind gespeichert. Klicke auf „Alle Aufgaben aus PDF erstellen“. "
-            "Die App verarbeitet automatisch das gesamte PDF. Danach kannst du die Aufgaben prüfen und zum Üben freigeben."
-        )
+    is_media = data.get("source_format") == "webvtt"
+    if is_media:
+        media_ui.prepare(selected, data, sound)
     else:
-        st.info(f"Schritt 2 von 2: {len(questions)} Aufgaben sind vorbereitet. Prüfe sie unten mit dem Original.")
-        checked = st.checkbox(
-            "Ich habe Aufgaben, Lesetexte, Lösungen und Hörzuordnung mit dem Original geprüft; vor der Abgabe sind keine Lösungen sichtbar.",
-            key=f"review_{selected}_{data['revision']}",
-        )
-        if st.button("Zum Üben freigeben", disabled=not checked, type="primary"):
-            exam_api.save(selected, draft, True, data["revision"])
-            st.session_state["exam_open_practice"] = selected
-            st.rerun()
-    completed = len(data.get("extracted_pages", []))
-    total = len(data["pages"])
-    if completed < total:
-        st.caption(
-            f"{completed} von {total} PDF-Seiten verarbeitet. Alle Abschnitte werden automatisch eingelesen. "
-            "Das kann mehrere Minuten dauern und verursacht KI-Anbietergebühren. "
-            "Bei einer Unterbrechung bleiben fertige Abschnitte gespeichert."
-        )
-        if st.button("Alle Aufgaben aus PDF erstellen" if not completed else "Alle Aufgaben weiter erstellen", type="primary"):
-            exam_api.start_import(selected)
-            st.rerun()
-
-        @st.fragment(run_every="5s")
-        def import_progress():
-            job = exam_api.import_status(selected)
-            st.progress(job["completed"] / job["total"], text=f"{job['completed']} von {job['total']} PDF-Seiten verarbeitet")
-            if job["running"]:
-                st.info("Import läuft im Hintergrund. Du kannst diese Seite verlassen. Langsame Seiten werden erneut versucht.")
-            elif job.get("error"):
-                st.warning(job["error"])
-            elif job["completed"] == job["total"]:
-                st.rerun(scope="app")
-
-        import_progress()
-    else:
-        st.success(f"Alle {total} PDF-Seiten wurden verarbeitet. {len(questions)} Aufgaben erkannt.")
-    st.caption(
-        f"{len(data['pages'])} PDF-Seiten · Original und Lösungen sind nur hier im Bearbeitungsbereich sichtbar."
-    )
-    if st.button("Original-PDF bereitstellen"):
-        st.session_state[f"exam_pdf_{selected}"] = exam_api.asset(selected, "pdf")
-    if st.session_state.get(f"exam_pdf_{selected}"):
-        st.download_button(
-            "Original-PDF herunterladen",
-            st.session_state[f"exam_pdf_{selected}"],
-            file_name="modelltest.pdf",
-            mime="application/pdf",
-        )
-    page = st.number_input("PDF-Seite ansehen", 1, len(data["pages"]), 1, key=f"page_{selected}")
-    with st.expander("Extrahierter Seitentext"):
-        st.text(data["pages"][page - 1] or "Kein Text erkannt. Bitte Original prüfen und Fragen manuell eingeben.")
-    with st.expander("Optional: Einzelne Seiten erneut übernehmen"):
-        st.caption(
-            "Wähle höchstens 8 Aufgabenseiten pro Durchlauf. Der übrige PDF-Text dient als Kontext für Lesetexte und Lösungen. Anbietergebühren fallen an."
-        )
-        first = st.number_input("Erste Aufgabenseite", 1, len(data["pages"]), 1)
-        last = st.number_input("Letzte Aufgabenseite", int(first), min(len(data["pages"]), int(first) + 7), int(first))
-        if st.button("Aufgaben aus PDF erstellen", type="primary"):
-            with st.spinner("Aufgaben werden übernommen…"):
-                exam_api.extract(selected, first, last)
-            st.rerun()
-    for warning in draft.get("warnings", []):
-        st.warning(warning)
-    with st.expander("Hördatei hinzufügen oder ersetzen"):
-        upload = st.file_uploader("MP3/WAV auswählen", type=["mp3", "wav"], key=f"attach_{selected}")
-        if st.button("Hördatei speichern", disabled=upload is None):
-            exam_api.attach_audio(selected, upload)
-            st.session_state.pop(f"exam_audio_{selected}", None)
-            st.rerun()
-    if data.get("audio_seconds"):
-        st.audio(sound(selected))
-        st.caption("Hörabschnitte kannst du bei jeder Frage mit Start- und Endsekunden zuordnen.")
-        with st.expander("Hörabschnitte automatisch vorschlagen"):
-            st.caption(
-                "Die Hördatei wird einmal transkribiert (je nach Anbieter mit Kosten). Die Zuordnung verwendet die hinterlegten Hörtext-Referenzen. Vorschläge bitte anhören und prüfen."
+        st.subheader("Import zum Üben vorbereiten")
+        if len(data.get("extracted_pages", [])) < len(data["pages"]):
+            st.info(
+                "Schritt 1 von 2: Die Dateien sind gespeichert. Klicke auf „Alle Aufgaben aus PDF erstellen“. "
+                "Die App verarbeitet automatisch das gesamte PDF. Danach kannst du die Aufgaben prüfen und zum Üben freigeben."
             )
-            if st.button("Transkribieren und Zuordnung vorschlagen"):
-                with st.spinner("Hördatei wird analysiert; das kann mehrere Minuten dauern…"):
-                    exam_api.audio_suggestions(selected)
+        else:
+            st.info(f"Schritt 2 von 2: {len(questions)} Aufgaben sind vorbereitet. Prüfe sie unten mit dem Original.")
+            checked = st.checkbox(
+                "Ich habe Aufgaben, Lesetexte, Lösungen und Hörzuordnung mit dem Original geprüft; vor der Abgabe sind keine Lösungen sichtbar.",
+                key=f"review_{selected}_{data['revision']}",
+            )
+            if st.button("Zum Üben freigeben", disabled=not checked, type="primary"):
+                exam_api.save(selected, draft, True, data["revision"])
+                st.session_state["exam_open_practice"] = selected
                 st.rerun()
-            suggestions = data.get("audio_suggestions", [])
-            if data.get("transcript") and not suggestions:
-                st.info(
-                    "Keine sichere Textübereinstimmung gefunden. Bitte Hörtext-Referenzen ergänzen oder Zeitmarken manuell setzen."
+        completed = len(data.get("extracted_pages", []))
+        total = len(data["pages"])
+        if completed < total:
+            st.caption(
+                f"{completed} von {total} PDF-Seiten verarbeitet. Alle Abschnitte werden automatisch eingelesen. "
+                "Das kann mehrere Minuten dauern und verursacht KI-Anbietergebühren. "
+                "Bei einer Unterbrechung bleiben fertige Abschnitte gespeichert."
+            )
+            if st.button("Alle Aufgaben aus PDF erstellen" if not completed else "Alle Aufgaben weiter erstellen", type="primary"):
+                exam_api.start_import(selected)
+                st.rerun()
+
+            @st.fragment(run_every="5s")
+            def import_progress():
+                job = exam_api.import_status(selected)
+                st.progress(job["completed"] / job["total"], text=f"{job['completed']} von {job['total']} PDF-Seiten verarbeitet")
+                if job["running"]:
+                    st.info("Import läuft im Hintergrund. Du kannst diese Seite verlassen. Langsame Seiten werden erneut versucht.")
+                elif job.get("error"):
+                    st.warning(job["error"])
+                elif job["completed"] == job["total"]:
+                    st.rerun(scope="app")
+
+            import_progress()
+        else:
+            st.success(f"Alle {total} PDF-Seiten wurden verarbeitet. {len(questions)} Aufgaben erkannt.")
+        st.caption(
+            f"{len(data['pages'])} PDF-Seiten · Original und Lösungen sind nur hier im Bearbeitungsbereich sichtbar."
+        )
+        if st.button("Original-PDF bereitstellen"):
+            st.session_state[f"exam_pdf_{selected}"] = exam_api.asset(selected, "pdf")
+        if st.session_state.get(f"exam_pdf_{selected}"):
+            st.download_button(
+                "Original-PDF herunterladen",
+                st.session_state[f"exam_pdf_{selected}"],
+                file_name="modelltest.pdf",
+                mime="application/pdf",
+            )
+        page = st.number_input("PDF-Seite ansehen", 1, len(data["pages"]), 1, key=f"page_{selected}")
+        with st.expander("Extrahierter Seitentext"):
+            st.text(data["pages"][page - 1] or "Kein Text erkannt. Bitte Original prüfen und Fragen manuell eingeben.")
+        with st.expander("Optional: Einzelne Seiten erneut übernehmen"):
+            st.caption(
+                "Wähle höchstens 8 Aufgabenseiten pro Durchlauf. Der übrige PDF-Text dient als Kontext für Lesetexte und Lösungen. Anbietergebühren fallen an."
+            )
+            first = st.number_input("Erste Aufgabenseite", 1, len(data["pages"]), 1)
+            last = st.number_input("Letzte Aufgabenseite", int(first), min(len(data["pages"]), int(first) + 7), int(first))
+            if st.button("Aufgaben aus PDF erstellen", type="primary"):
+                with st.spinner("Aufgaben werden übernommen…"):
+                    exam_api.extract(selected, first, last)
+                st.rerun()
+        for warning in draft.get("warnings", []):
+            st.warning(warning)
+        with st.expander("Hördatei hinzufügen oder ersetzen"):
+            upload = st.file_uploader("MP3/WAV/WEBM auswählen", type=["mp3", "wav", "webm"], key=f"attach_{selected}")
+            if st.button("Hördatei speichern", disabled=upload is None):
+                exam_api.attach_audio(selected, upload)
+                st.session_state.pop(f"exam_audio_{selected}", None)
+                st.rerun()
+        if data.get("audio_seconds"):
+            st.audio(sound(selected))
+            st.caption("Hörabschnitte kannst du bei jeder Frage mit Start- und Endsekunden zuordnen.")
+            with st.expander("Hörabschnitte automatisch vorschlagen"):
+                st.caption(
+                    "Die Hördatei wird einmal transkribiert (je nach Anbieter mit Kosten). Die Zuordnung verwendet die hinterlegten Hörtext-Referenzen. Vorschläge bitte anhören und prüfen."
                 )
-            for suggestion in suggestions:
-                st.write(f"{suggestion['id']}: {suggestion['start']:.1f}–{suggestion['end']:.1f} Sekunden")
-                st.caption(suggestion["excerpt"])
-                st.audio(sound(selected), start_time=suggestion["start"], end_time=suggestion["end"])
-                if st.button("Zeitmarken als Entwurf übernehmen", key=f"suggest_{selected}_{suggestion['id']}"):
-                    updated = [
-                        {**q, "audio_start": suggestion["start"], "audio_end": suggestion["end"]}
-                        if q["id"] == suggestion["id"]
-                        else q
-                        for q in draft["questions"]
-                    ]
-                    exam_api.save(selected, {**draft, "questions": updated}, False, data["revision"])
+                if st.button("Transkribieren und Zuordnung vorschlagen"):
+                    with st.spinner("Hördatei wird analysiert; das kann mehrere Minuten dauern…"):
+                        exam_api.audio_suggestions(selected)
                     st.rerun()
-            if data.get("transcript"):
-                st.text_area(
-                    "Hörtranskript (nur Bearbeitungsbereich)", data["transcript"].get("text", ""), disabled=True
-                )
+                suggestions = data.get("audio_suggestions", [])
+                if data.get("transcript") and not suggestions:
+                    st.info(
+                        "Keine sichere Textübereinstimmung gefunden. Bitte Hörtext-Referenzen ergänzen oder Zeitmarken manuell setzen."
+                    )
+                for suggestion in suggestions:
+                    st.write(f"{suggestion['id']}: {suggestion['start']:.1f}–{suggestion['end']:.1f} Sekunden")
+                    st.caption(suggestion["excerpt"])
+                    st.audio(sound(selected), start_time=suggestion["start"], end_time=suggestion["end"])
+                    if st.button("Zeitmarken als Entwurf übernehmen", key=f"suggest_{selected}_{suggestion['id']}"):
+                        updated = [
+                            {**q, "audio_start": suggestion["start"], "audio_end": suggestion["end"]}
+                            if q["id"] == suggestion["id"]
+                            else q
+                            for q in draft["questions"]
+                        ]
+                        exam_api.save(selected, {**draft, "questions": updated}, False, data["revision"])
+                        st.rerun()
+                if data.get("transcript"):
+                    st.text_area(
+                        "Hörtranskript (nur Bearbeitungsbereich)", data["transcript"].get("text", ""), disabled=True
+                    )
     with st.form(f"meta_{selected}_{data['revision']}"):
         title = st.text_input("Testtitel", draft["title"])
         level = st.text_input("Niveau", draft.get("level", "B2"))
@@ -325,9 +338,9 @@ def edit(selected):
         kind = st.selectbox(
             "Antworttyp", list(kinds), index=list(kinds).index(q.get("kind", "choice")), format_func=kinds.get
         )
-        question_page = st.number_input("Quellseite", 1, len(data["pages"]), q.get("page", 1))
+        question_page = st.number_input("Transkriptabschnitt" if is_media else "Quellseite", 1, len(data["pages"]), q.get("page", 1))
         instructions = st.text_area("Anweisungen", q.get("instructions", ""))
-        passage = st.text_area("Lesetext (keine Lösungen oder Hörtranskripte)", q.get("passage", ""))
+        passage = st.text_area("Transkript / Lesetext" if is_media else "Lesetext (keine Lösungen oder Hörtranskripte)", q.get("passage", ""))
         question = st.text_area("Frage / Aufgabenstellung", q.get("question", ""))
         options = st.text_area("Antwortoptionen – eine pro Zeile", "\n".join(q.get("options", [])))
         answers = st.text_area(
@@ -408,14 +421,19 @@ try:
         mode = st.radio("Bereich", ["Üben", "Ergebnisse"], horizontal=True, key="exam_mode")
         with st.expander("Eigene Tests hinzufügen oder bearbeiten"):
             st.button("PDF und Hördatei hinzufügen", on_click=lambda: st.session_state.update(exam_mode="Importieren"))
+            st.button("Lesung mit VTT-Transkript hinzufügen", on_click=lambda: st.session_state.update(exam_mode="Importieren", exam_import_type="Lesung mit Transkript"))
             st.button("Gespeicherten Test bearbeiten", on_click=lambda: st.session_state.update(exam_mode="Bearbeiten"))
     if mode == "Importieren":
+        import_type = st.radio("Materialart", ["Prüfungs-PDF", "Lesung mit Transkript"], horizontal=True, key="exam_import_type")
+        if import_type == "Lesung mit Transkript":
+            media_ui.upload()
+            st.stop()
         st.subheader("PDF und passende Hördatei")
         st.caption("Dateien importieren → Aufgaben aus PDF erstellen → prüfen und zum Üben freigeben.")
         with st.form("exam_upload"):
             title = st.text_input("Titel (optional)")
             pdf = st.file_uploader("Prüfungs-PDF (bis 25 MB)", type=["pdf"])
-            audio = st.file_uploader("Passende MP3/WAV (optional, bis 100 MB)", type=["mp3", "wav"])
+            audio = st.file_uploader("Passende MP3/WAV/WEBM (optional, bis 100 MB)", type=["mp3", "wav", "webm"])
             if st.form_submit_button("Dateien importieren und Aufgaben vorbereiten"):
                 if pdf is None:
                     st.warning("Bitte eine Prüfungs-PDF auswählen.")
@@ -487,7 +505,7 @@ try:
         elif not selected["reviewed"]:
             if not selected["question_count"]:
                 st.info(
-                    "PDF und Hördatei sind gespeichert. Es fehlen noch die interaktiven Aufgaben. Übernimm sie aus dem PDF und prüfe anschließend die Lösungen."
+                    "Die Dateien sind gespeichert. Erstelle die interaktiven Aufgaben und prüfe anschließend die Lösungen."
                 )
             else:
                 st.info(

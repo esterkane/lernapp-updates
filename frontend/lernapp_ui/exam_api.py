@@ -109,3 +109,10 @@ def save_progress(attempt_id: str, answers: dict[str, str], position: int, revis
 
 def reset_progress(attempt_id: str, revision: int) -> dict[str, Any]:
     return api._post(f"/exams/attempts/{attempt_id}/reset", {"revision": revision})
+
+
+def upload_media(transcript, audio, title):
+    return api._request("POST", "/exams/media", files={
+        "transcript": (transcript.name, transcript.getvalue(), "text/vtt"),
+        "audio": (audio.name, audio.getvalue(), audio.type),
+    }, data={"title": title}, timeout=180)

@@ -91,3 +91,13 @@ Neue persönliche Lernmaterialien werden getrennt von App-Updates verteilt. Bere
 - **Fortschritt nicht gespeichert:** Den angezeigten Fehler beachten und **Speichern erneut versuchen** wählen. Bei Änderungen in einem zweiten Fenster die Seite neu laden.
 
 Für die Fehlerklärung genügen die angezeigte Meldung und deine App-Version. API-Schlüssel und Übertragungspasswort nicht öffentlich teilen.
+
+## Lesungen mit WEBM und VTT
+
+Öffne **Materialien → Dateien hinzufügen → Lesung mit VTT-Transkript hinzufügen**. Wähle eine lokale WEBM-, MP3- oder WAV-Aufnahme und die dazugehörigen VTT-Untertitel. Du findest den Import auch unter **Modelltests → Eigene Tests hinzufügen oder bearbeiten**. Hördateien dürfen bis zu 100 MB und 180 Minuten lang sein, Untertitel bis zu 2 MB. Ein Import umfasst höchstens 40 kurze Lernabschnitte. Dieselbe Dateikombination öffnet den vorhandenen Import.
+
+Mit **Erklärungen und Fragen erstellen** bereitest du alle Abschnitte vor. Das nutzt deinen verbundenen KI-Anbieter. Bei Unterbrechungen bleiben fertige Abschnitte gespeichert. Das vorhandene Transkript liefert Text und Zeitmarken; eine zusätzliche Spracherkennung ist nicht nötig. Prüfe Erkennungsfehler, Erklärungen und Lösungen mit der Aufnahme und klicke anschließend auf **Zum Üben freigeben**. Erklärungen und Fragen lassen sich im Vorbereitungsbereich bearbeiten.
+
+In der Übung liest du zuerst unter **Umgangssprache verstehen** die Bedeutung, Hinweise zum Sprachgebrauch und ein neues Alltagsbeispiel. Danach hörst du den passenden Abschnitt und beantwortest Verständnisfragen. Bei Leseaufgaben erscheint das Originaltranskript direkt. Bei Höraufgaben kannst du **Transkript als Lesehilfe anzeigen** aufklappen. Lösungen erscheinen erst nach der Abgabe. Dies sind neu erstellte Lernübungen, keine offiziellen Prüfungsaufgaben.
+
+WEBM wird für die Wiedergabe lokal in MP3 umgewandelt und zwischengespeichert. Beim ersten Abspielen kann das kurz dauern. Originalaufnahme, VTT, vorbereitete Erklärungen, Fragen und Fortschritt werden in privaten `.lernapp`-Exporten mitgenommen. Nach Installation und Datenübernahme funktionieren Lesen, Anhören und automatische Auswertung offline. Neue Übungen erstellen benötigt den verbundenen Online-Anbieter. Öffentliche App-Updates enthalten nur das Programm, keine privaten Aufnahmen oder Lernpakete.

@@ -46,7 +46,7 @@ def audio_duration(data: bytes) -> float:
                 raise ValueError("Die Audiodauer muss zwischen 0 und 180 Minuten liegen.")
             return duration
     except Exception as exc:
-        raise ValueError("Audiodatei konnte nicht gelesen werden (MP3 oder WAV, höchstens 180 Minuten).") from exc
+        raise ValueError("Audiodatei konnte nicht gelesen werden (MP3, WAV oder WEBM, höchstens 180 Minuten).") from exc
 
 
 def create(owner: str, filename: str, pdf: bytes, audio: bytes | None = None, source: str = "") -> dict[str, Any]:
@@ -98,6 +98,7 @@ def summary(row: Exam) -> dict[str, Any]:
         "question_count": len(row.payload["draft"].get("questions", [])),
         "audio_seconds": row.payload.get("audio_seconds", 0),
         "source": row.payload.get("source", ""),
+        "source_format": row.payload.get("source_format", "pdf"),
         "material_kind": row.payload.get("material_kind", "test"),
         "source_materials": row.payload.get("source_materials", []),
         "rag_document_id": row.payload.get("rag_document_id"),
@@ -128,6 +129,13 @@ def save(
         row = owned(db, Exam, identifier, owner, lock=True)
         if revision != row.payload.get("revision", 1):
             raise HTTPException(409, "Der Entwurf wurde geändert. Bitte neu laden.")
+        if row.payload.get("source_format") == "webvtt":
+            if any(q.source_pages for q in draft.questions):
+                raise ValueError("Lesungen haben Transkriptabschnitte, keine PDF-Seiten.")
+            if any(n.section > len(row.payload["pages"]) for n in draft.learning_notes):
+                raise ValueError("Der Transkriptabschnitt für eine Erklärung existiert nicht.")
+            if reviewed and len(row.payload.get("extracted_pages", [])) < len(row.payload["pages"]):
+                raise ValueError("Bitte zuerst alle Transkriptabschnitte vorbereiten.")
         for q in draft.questions:
             if q.page > len(row.payload["pages"]) or any(p > len(row.payload["pages"]) for p in q.source_pages):
                 raise ValueError(f"Frage {q.id}: PDF-Seite existiert nicht.")
@@ -148,6 +156,9 @@ def save(
 
 def extract(identifier: str, owner: str, first: int, last: int) -> dict[str, Any]:
     data = editor(identifier, owner)
+    if data.get("source_format") == "webvtt":
+        from app.services import media_lessons
+        return media_lessons.extract(identifier, owner, data, first, last)
     pages = data["pages"]
     if not 1 <= first <= last <= len(pages) or last - first >= 8:
         raise ValueError("Bitte 1 bis 8 zusammenhängende Aufgabenseiten wählen.")
@@ -195,6 +206,10 @@ def extract(identifier: str, owner: str, first: int, last: int) -> dict[str, Any
 def asset(identifier: str, owner: str, kind: str) -> bytes:
     with db_session() as db:
         row = owned(db, Exam, identifier, owner)
+        if kind == "transcript":
+            if not row.payload.get("vtt"):
+                raise HTTPException(404, "Kein VTT-Transkript vorhanden.")
+            return str(row.payload["vtt"]).encode("utf-8")
         value = row.pdf if kind == "pdf" else row.audio
         if not value:
             raise HTTPException(404, "Datei nicht vorhanden.")
@@ -206,7 +221,8 @@ def start(identifier: str, owner: str, timed: bool) -> dict[str, Any]:
         row = owned(db, Exam, identifier, owner, lock=True)
         if not row.payload.get("reviewed"):
             raise HTTPException(409, "Bitte den Entwurf zuerst prüfen und freigeben.")
-        snapshot = {**row.payload["draft"], "audio_seconds": row.payload.get("audio_seconds", 0)}
+        snapshot = {**row.payload["draft"], "audio_seconds": row.payload.get("audio_seconds", 0),
+                    "source_format": row.payload.get("source_format", "pdf")}
         if not timed:
             snapshot["duration_minutes"] = 0
         attempt = ExamAttempt(exam_id=row.id, owner_id=owner, snapshot=snapshot)
@@ -369,6 +385,8 @@ def attach_audio(identifier: str, owner: str, data: bytes) -> dict[str, Any]:
             raise HTTPException(
                 409, "Dieser Test hat bereits Versuche. Für eine andere Hördatei bitte einen neuen Test importieren."
             )
+        if row.payload.get("source_format") == "webvtt":
+            raise ValueError("Für eine andere Aufnahme bitte die Lesung mit passendem VTT neu importieren.")
         draft = ExamDraft.model_validate(row.payload["draft"])
         for q in draft.questions:
             q.audio_start = q.audio_end = None

@@ -1618,7 +1618,7 @@ wheels = [
 
 [[package]]
 name = "lernapp"
-version = "0.2.20"
+version = "0.2.21"
 source = { editable = "." }
 dependencies = [
     { name = "alembic" },

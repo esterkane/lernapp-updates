@@ -35,3 +35,7 @@ Scores are for practice only and are not official TestDaF or Goethe exam results
 ## Maintaining the app
 
 See [Publishing updates (German)](docs/Updates-veroeffentlichen.md) for the release process. This repository contains the app source and installers for Windows, macOS and Linux. Run platform-specific update checks before each release.
+
+### Listening lessons from your own recordings
+
+Import matching WEBM/MP3/WAV audio and WebVTT subtitles to prepare colloquial German explanations followed by listening and reading comprehension questions. Original text, timestamps and private learning-pack portability are preserved. See the [English manual](docs/User-Manual.md#listening-lessons-with-webm-and-vtt) or [German manual](docs/Benutzerhandbuch.md#lesungen-mit-webm-und-vtt).

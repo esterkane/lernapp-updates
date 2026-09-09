@@ -99,3 +99,13 @@ Versions older than 0.2.17 need a one-time installation of a current version to 
 - **Progress did not save:** read the error and choose **Speichern erneut versuchen** (Try saving again). If another window changed the same attempt, reload the page.
 
 When asking for help, share the displayed error and your app version. Keep API keys and the transfer password private.
+
+## Listening lessons with WEBM and VTT
+
+Under **Materialien → Dateien hinzufügen → Lesung mit VTT-Transkript hinzufügen**, select a local WEBM, MP3 or WAV recording and its matching VTT subtitles. You can also find this import under **Modelltests → Eigene Tests hinzufügen oder bearbeiten**. Audio may be up to 100 MB and 180 minutes; subtitles up to 2 MB. Long transcripts are limited to 40 short learning sections. Adding the same pair again opens the existing import.
+
+Click **Erklärungen und Fragen erstellen** to prepare all sections. This uses your connected AI provider; completed sections stay saved if interrupted. The supplied subtitles provide the text and time marks, so no additional speech-recognition request is needed. Review automatic subtitle errors, explanations and answers against the recording, then click **Zum Üben freigeben**. You can edit explanations and questions in the preparation screen.
+
+In the exercise, first read **Umgangssprache verstehen** for the expression's meaning, usage and a new everyday example. Then play the matching audio and answer the comprehension question. Reading questions display the original transcript; listening questions offer **Transkript als Lesehilfe anzeigen** as an optional aid. Solutions remain hidden until submission. These are newly created learning exercises, not official exam tasks.
+
+WEBM playback is converted to MP3 locally and cached; the first playback may take a moment. The original recording, VTT, prepared explanations, questions and progress are included in private `.lernapp` exports. Once installed and imported, reading, playback and automatic scoring work offline. Generating or regenerating exercises needs the configured online provider. Public app updates contain program code only, not private recordings or learning packs.

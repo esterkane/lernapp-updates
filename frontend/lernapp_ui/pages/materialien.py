@@ -15,6 +15,9 @@ def render_files() -> None:
         if st.button("Aufgaben aus einer Prüfungs-PDF erstellen"):
             st.session_state["exam_mode"] = "Importieren"
             st.switch_page("pages/modelltests.py")
+        if st.button("Lesung mit VTT-Transkript hinzufügen"):
+            st.session_state.update(exam_mode="Importieren", exam_import_type="Lesung mit Transkript")
+            st.switch_page("pages/modelltests.py")
         if st.button("Vokabelkarten aus einer Wortliste erstellen"):
             st.switch_page("pages/vokabeln.py")
         if st.button("Text für Gespräche und Übungen hinzufügen"):
@@ -48,19 +51,24 @@ def render_files() -> None:
                 st.switch_page("pages/modelltests.py")
             for warning in detail["draft"].get("warnings", []):
                 st.warning(warning)
-            if st.button("PDF zum Herunterladen laden"):
-                st.session_state[f"exam_pdf_{item['id']}"] = exam_api.asset(item["id"], "pdf")
-            if st.session_state.get(f"exam_pdf_{item['id']}"):
-                st.download_button(
-                    "PDF herunterladen",
-                    st.session_state[f"exam_pdf_{item['id']}"],
-                    file_name=item["title"] + ".pdf",
-                    mime="application/pdf",
-                )
-            page = st.number_input("Seite", 1, len(detail["pages"]), 1, key=f"material_page_{item['id']}")
-            st.text(detail["pages"][page - 1])
-            if st.checkbox("Originalseite mit Abbildungen anzeigen", key=f"material_original_{item['id']}"):
-                st.image(exam_api.page_image(item["id"], page), width="stretch")
+            if detail.get("source_format") == "webvtt":
+                section = st.number_input("Transkriptabschnitt", 1, len(detail["pages"]), 1)
+                st.write(detail["pages"][section - 1])
+                st.download_button("VTT herunterladen", detail["vtt"], file_name="transkript.vtt", mime="text/vtt")
+            else:
+                if st.button("PDF zum Herunterladen laden"):
+                    st.session_state[f"exam_pdf_{item['id']}"] = exam_api.asset(item["id"], "pdf")
+                if st.session_state.get(f"exam_pdf_{item['id']}"):
+                    st.download_button(
+                        "PDF herunterladen",
+                        st.session_state[f"exam_pdf_{item['id']}"],
+                        file_name=item["title"] + ".pdf",
+                        mime="application/pdf",
+                    )
+                page = st.number_input("Seite", 1, len(detail["pages"]), 1, key=f"material_page_{item['id']}")
+                st.text(detail["pages"][page - 1])
+                if st.checkbox("Originalseite mit Abbildungen anzeigen", key=f"material_original_{item['id']}"):
+                    st.image(exam_api.page_image(item["id"], page), width="stretch")
             if detail.get("audio_seconds") and st.checkbox("Hördatei öffnen", key=f"material_audio_{item['id']}"):
                 key = f"exam_audio_{item['id']}"
                 if key not in st.session_state:

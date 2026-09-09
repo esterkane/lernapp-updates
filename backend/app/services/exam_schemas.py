@@ -33,11 +33,20 @@ class ExamQuestion(BaseModel):
         return self
 
 
+class LearningNote(BaseModel):
+    section: int = Field(default=1, ge=1)
+    phrase: str = Field(min_length=1, max_length=300)
+    meaning: str = Field(min_length=1, max_length=1500)
+    usage: str = Field(default="", max_length=1000)
+    example: str = Field(default="", max_length=1000)
+
+
 class ExamDraft(BaseModel):
     title: str = Field(min_length=1, max_length=255)
     level: str = Field(default="B2", max_length=20)
     duration_minutes: int = Field(default=0, ge=0, le=300)
     questions: list[ExamQuestion] = Field(default_factory=list, max_length=200)
+    learning_notes: list[LearningNote] = Field(default_factory=list, max_length=240)
     warnings: list[str] = Field(default_factory=list, max_length=50)
 
     @model_validator(mode="after")

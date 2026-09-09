@@ -33,6 +33,8 @@ def render(identifier: str, owner: str, page: int, attempt_id: str | None = None
         if row is None:
             raise HTTPException(404, "Modelltest in diesem Lernbereich nicht gefunden.")
         data, rotation = row
+        if not data:
+            raise HTTPException(404, "Dieses Material enthält keine PDF-Seiten.")
     if rotation not in (0, 90, 180, 270):
         rotation = 0
     key = (owner, identifier, hashlib.sha256(data).digest(), page, rotation)
