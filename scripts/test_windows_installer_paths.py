@@ -33,14 +33,14 @@ with tempfile.TemporaryDirectory(prefix='Lernapp Gaby Ant ') as temporary:
         r = run(path, env=env)
         assert r.returncode == 0, r.stdout + r.stderr
         values = json.loads(r.stdout.strip().splitlines()[-1])
-        assert Path(values['source']) == install / 'src'
+        assert Path(values['source']).samefile(install / 'src'), values
         assert Path(values['destination']).is_absolute()
     explicit = base / 'Explicit app'
     fixture(explicit)
     r = run(path, '-SourceDir', str(explicit), '-AppDir', str(explicit), '-NoShortcuts')
     assert r.returncode == 0, r.stdout + r.stderr
     values = json.loads(r.stdout.strip().splitlines()[-1])
-    assert values['source'] == values['destination'] == str(explicit)
+    assert Path(values['source']).samefile(explicit) and Path(values['destination']).samefile(explicit), values
     installed = base / 'Installed Lernapp'
     fixture(installed / 'app')
     (installed / 'installer').mkdir()
@@ -48,7 +48,7 @@ with tempfile.TemporaryDirectory(prefix='Lernapp Gaby Ant ') as temporary:
     repair.write_text(preflight, encoding='utf-8-sig')
     r = run(repair)
     assert r.returncode == 0, r.stdout + r.stderr
-    assert Path(json.loads(r.stdout.strip().splitlines()[-1])['source']) == installed / 'app'
+    assert Path(json.loads(r.stdout.strip().splitlines()[-1])['source']).samefile(installed / 'app')
     incomplete = base / 'Temp ZIP folder'
     incomplete.mkdir()
     broken = incomplete / 'install.ps1'
