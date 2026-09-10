@@ -189,6 +189,10 @@ def pid_alive(pid: int) -> bool:
         process_query_limited_information = 0x1000
         still_active = 259
         kernel32 = ctypes.windll.kernel32  # type: ignore[attr-defined]
+        kernel32.OpenProcess.argtypes = [ctypes.c_ulong, ctypes.c_bool, ctypes.c_ulong]
+        kernel32.OpenProcess.restype = ctypes.c_void_p
+        kernel32.GetExitCodeProcess.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_ulong)]
+        kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
         handle = kernel32.OpenProcess(process_query_limited_information, False, pid)
         if not handle:
             return False
@@ -390,10 +394,7 @@ def terminate(proc: subprocess.Popen[bytes], name: str, grace: float = STOP_GRAC
     if proc.poll() is not None:
         return
     try:
-        if IS_WINDOWS:
-            proc.terminate()
-        else:
-            proc.terminate()
+        proc.terminate()
     except OSError:
         pass
     try:

@@ -1,5 +1,6 @@
 """Real WebView2 window + hidden supervisor lifecycle smoke test on Windows."""
 import os
+import shutil
 import sys
 import tempfile
 import threading
@@ -13,7 +14,7 @@ def main():
     import webview
     from lernapp_launcher import cli, desktop
 
-    with tempfile.TemporaryDirectory(prefix='Lernapp desktop ') as folder:
+    with tempfile.TemporaryDirectory(prefix='Lernapp desktop ', ignore_cleanup_errors=True) as folder:
         data = Path(folder)
         os.environ.update(LERNAPP_DATA_DIR=folder, LERNAPP_ROOT=str(ROOT))
         saved = data / 'saved-learning.json'
@@ -68,7 +69,7 @@ server.shutdown()
         assert not cli.read_state(), 'Service registration left behind'
         assert saved.read_bytes() == before, 'Saved learning data changed'
         # Ensure Windows receives a GUI-subsystem entry point (no console allocation).
-        exe = Path(sys.executable).parent / 'lernapp-desktop.exe'
+        exe = Path(shutil.which('lernapp-desktop.exe'))
         content = exe.read_bytes()
         pe = int.from_bytes(content[60:64], 'little')
         assert int.from_bytes(content[pe + 24 + 68:pe + 24 + 70], 'little') == 2

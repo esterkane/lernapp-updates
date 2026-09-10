@@ -93,6 +93,7 @@ def install() -> None:
             cwd=repo_root(),
             check=True,
             timeout=600,
+            creationflags=0x08000000 if __import__("os").name == "nt" else 0,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )

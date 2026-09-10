@@ -193,8 +193,8 @@ def run(request: Path) -> None:
             if extra not in ("local-tts", "es", "phones"):
                 raise ValueError("Unknown extra")
             args += ["--extra", extra]
-        subprocess.run(args, cwd=app, env=environment(app, data), check=True, timeout=1800)
-        status("installing", "Die aktualisierte App startet. Dein Browser öffnet sich gleich wieder.")
+        subprocess.run(args, cwd=app, env=environment(app, data), check=True, timeout=1800, creationflags=0x08000000 if os.name == "nt" else 0)
+        status("installing", "Die aktualisierte App startet und öffnet sich gleich wieder.")
         start(app, data)
         if not healthy(data, cfg["version"]):
             raise RuntimeError("Updated app did not start successfully")

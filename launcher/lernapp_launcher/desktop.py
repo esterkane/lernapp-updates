@@ -217,7 +217,10 @@ def main():
 
             webview.settings["ALLOW_DOWNLOADS"] = True
             webview.settings["ALLOW_FILE_URLS"] = False
-            refresh_shortcuts()
+            try:
+                refresh_shortcuts()
+            except (OSError, subprocess.SubprocessError) as exc:
+                print(f"Could not refresh shortcuts: {exc}")
             show_window(webview, Session())
             return 0
         except Exception:

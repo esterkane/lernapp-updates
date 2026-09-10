@@ -7,10 +7,11 @@ Unset → embedded PostgreSQL 16 + pgvector started via ``pgserver`` in ``<data_
 from __future__ import annotations
 
 import logging
+import os
 import threading
 from collections.abc import Iterator
 from contextlib import contextmanager
-from functools import lru_cache
+from functools import lru_cache, partial
 from pathlib import Path
 from typing import Any
 
@@ -58,6 +59,13 @@ def _embedded_uri() -> str:
     global _embedded
     import pgserver
     import pgserver.postgres_server
+
+    if os.name == "nt":
+        from pgserver import _commands
+        # pgserver does not hide its console helpers itself. Keep first-run database
+        # initialization and normal starts silent in the Windows desktop app.
+        pgserver.postgres_server.initdb = partial(_commands.initdb, creationflags=0x08000000)  # type: ignore[attr-defined]
+        pgserver.postgres_server.pg_ctl = partial(_commands.pg_ctl, creationflags=0x08000000)  # type: ignore[attr-defined]
 
     # see _socket_dir_without_whitespace (pgserver bug with spaces in the data path)
     pgserver.postgres_server.find_suitable_socket_dir = _socket_dir_without_whitespace  # type: ignore[attr-defined]
