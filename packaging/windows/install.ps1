@@ -17,8 +17,8 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$SourceDir = (Join-Path $PSScriptRoot 'src'),
-    [string]$AppDir = (Join-Path $env:LOCALAPPDATA 'Lernapp\app'),
+    [string]$SourceDir = '',
+    [string]$AppDir = '',
     [switch]$NoShortcuts,
     [switch]$DownloadModels
 )
@@ -35,11 +35,36 @@ function Fail($msg) {
     exit 1
 }
 
+# Resolve script-dependent defaults only after parameter binding. Windows PowerShell
+# can expose an empty PSScriptRoot while evaluating a param() default expression.
+$installerRoot = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($installerRoot) -and $PSCommandPath) {
+    $installerRoot = Split-Path -Parent $PSCommandPath
+}
+if ([string]::IsNullOrWhiteSpace($installerRoot)) {
+    Fail "Skriptordner fehlt. ZIP vollstaendig entpacken und install.cmd doppelklicken."
+}
+if ([string]::IsNullOrWhiteSpace($SourceDir)) {
+    $SourceDir = Join-Path $installerRoot 'src'
+    # The installed repair shortcut lives in installer/, alongside app/.
+    $installedSource = Join-Path (Split-Path -Parent $installerRoot) 'app'
+    if (-not (Test-Path -LiteralPath $SourceDir) -and (Test-Path -LiteralPath (Join-Path $installedSource 'pyproject.toml'))) {
+        $SourceDir = $installedSource
+    }
+}
+if ([string]::IsNullOrWhiteSpace($AppDir)) {
+    $localData = [Environment]::GetFolderPath('LocalApplicationData')
+    if ([string]::IsNullOrWhiteSpace($localData)) {
+        Fail "Windows konnte den lokalen Benutzerordner nicht bestimmen. Bitte unter deinem normalen Windows-Konto starten."
+    }
+    $AppDir = Join-Path $localData 'Lernapp\app'
+}
+
 Write-Host "Lernapp-Installation für Windows"
 Write-Host "  Quelle: $SourceDir"
 Write-Host "  Ziel:   $AppDir"
 
-if (-not (Test-Path (Join-Path $SourceDir 'pyproject.toml'))) { Fail "Quellverzeichnis ungültig (pyproject.toml fehlt): $SourceDir" }
+if (-not (Test-Path (Join-Path $SourceDir 'pyproject.toml'))) { Fail "App-Dateien fehlen: $SourceDir. Bitte die ZIP mit Alle extrahieren vollstaendig entpacken und install.cmd neben dem src-Ordner starten." }
 if (-not (Test-Path (Join-Path $SourceDir 'uv.lock'))) { Fail "Quellverzeichnis ungültig (uv.lock fehlt): $SourceDir" }
 if (-not [Environment]::Is64BitOperatingSystem) { Fail "Lernapp benötigt ein 64-Bit-Windows." }
 
@@ -90,7 +115,7 @@ if ($srcFull -ieq $dstFull) {
     & robocopy.exe @args | Out-Null
     if ($LASTEXITCODE -ge 8) { Fail "Kopieren fehlgeschlagen (robocopy Code $LASTEXITCODE)." }
 }
-$iconSrc = Join-Path $PSScriptRoot 'lernapp.ico'
+$iconSrc = Join-Path $installerRoot 'lernapp.ico'
 if (Test-Path $iconSrc) { Copy-Item $iconSrc (Join-Path $AppDir 'lernapp.ico') -Force }
 
 # ---------------------------------------------------------------- 4. Abhängigkeiten ---------

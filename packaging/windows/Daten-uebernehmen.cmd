@@ -3,7 +3,9 @@ setlocal
 chcp 65001 >nul
 set "LERNAPP_EXE=%LOCALAPPDATA%\Lernapp\app\.venv\Scripts\lernapp.exe"
 if not exist "%LERNAPP_EXE%" (
-  echo Bitte zuerst install.cmd aus dem Windows-Installer ausfuehren.
+  echo Die App-Installation ist noch nicht abgeschlossen.
+  echo Bitte den Windows-Installer vollstaendig ausfuehren.
+  echo Bei ZIP-Installation: Alle extrahieren, dann install.cmd neben dem src-Ordner starten.
   pause
   exit /b 1
 )

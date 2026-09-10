@@ -111,3 +111,8 @@ For listening lessons without a timer, use **listen → answer → check → con
 **Wörter und Umgangssprache verstehen** offers optional word explanations. Reading questions show their text; listening questions offer **Transkript als Lesehilfe anzeigen** as an optional aid. Answers, checked feedback and the current question are saved on this laptop. Changing an answer clears its previous check; use Check answer again. **Aufgabenübersicht** lets you revisit questions. **Fortschritt zurücksetzen** clears answers and checks for that attempt. Timed tests retain whole-test submission. These are learning exercises, not official exam tasks.
 
 WEBM playback is converted to MP3 locally and cached; the first playback may take a moment. The original recording, VTT, prepared explanations, questions and progress are included in private `.lernapp` exports. Once installed and imported, reading, playback and automatic scoring work offline. Generating or regenerating exercises needs the configured online provider. Public app updates contain program code only, not private recordings or learning packs.
+
+
+### Windows ZIP installation troubleshooting
+
+Use **Extract All** on the Windows installer ZIP before running `install.cmd`. Run the file directly beside `install.ps1` and the `src` folder. Running inside the ZIP can launch only the script from a temporary folder. If version 0.2.22 reports an empty PowerShell Path, use installer 0.2.23 or later; your existing `.lernapp` materials backup can be reused. Start data migration only after installation finishes successfully.

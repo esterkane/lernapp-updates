@@ -103,3 +103,8 @@ Für Lesungen ohne Zeitlimit gilt: **Anhören → Antworten → Prüfen → Fort
 Unter **Wörter und Umgangssprache verstehen** findest du bei Bedarf Erklärungen. Leseaufgaben zeigen ihren Text direkt; bei Höraufgaben lässt sich **Transkript als Lesehilfe anzeigen** aufklappen. Antworten, geprüfte Rückmeldungen und die aktuelle Aufgabe werden auf diesem Laptop gespeichert. Wenn du eine Antwort änderst, prüfe sie erneut. Über **Aufgabenübersicht** kannst du Fragen wieder aufrufen. **Fortschritt zurücksetzen** löscht Antworten und Prüfungen dieses Versuchs. Tests mit Zeitlimit werden weiterhin insgesamt abgegeben. Dies sind Lernübungen, keine offiziellen Prüfungsaufgaben.
 
 WEBM wird für die Wiedergabe lokal in MP3 umgewandelt und zwischengespeichert. Beim ersten Abspielen kann das kurz dauern. Originalaufnahme, VTT, vorbereitete Erklärungen, Fragen und Fortschritt werden in privaten `.lernapp`-Exporten mitgenommen. Nach Installation und Datenübernahme funktionieren Lesen, Anhören und automatische Auswertung offline. Neue Übungen erstellen benötigt den verbundenen Online-Anbieter. Öffentliche App-Updates enthalten nur das Programm, keine privaten Aufnahmen oder Lernpakete.
+
+
+### Fehler bei der Windows-ZIP-Installation
+
+Die Windows-Installer-ZIP zuerst mit **Alle extrahieren** vollständig entpacken. Danach `install.cmd` direkt neben `install.ps1` und dem Ordner `src` starten. Beim Start innerhalb der ZIP kann Windows nur das Skript in einen temporären Ordner kopieren. Meldet Version 0.2.22 einen leeren PowerShell-Pfad, verwende Installer 0.2.23 oder neuer. Die vorhandene `.lernapp`-Sicherung lässt sich weiterverwenden. Daten erst nach erfolgreicher Installation übernehmen.
