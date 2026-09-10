@@ -1,6 +1,6 @@
 [project]
 name = "lernapp"
-version = "0.2.23"
+version = "0.2.24"
 description = "German learning app for TestDaF, work and negotiations, with local materials, practice tests and saved progress"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
@@ -32,6 +32,7 @@ dependencies = [
   "packaging>=24",
   "lernapp-mcp",
   "fonttools>=4",
+  "pywebview>=6,<7; sys_platform == 'win32'",
   "pypdfium2>=4.30",
 ]
 
@@ -44,6 +45,9 @@ notebooks = ["jupyter>=1.0", "nbconvert>=7.16", "matplotlib>=3.9"]
 [project.scripts]
 lernapp = "lernapp_launcher.cli:main"
 lernapp-api = "app.main:run"
+
+[project.gui-scripts]
+lernapp-desktop = "lernapp_launcher.desktop:main"
 
 [dependency-groups]
 dev = [

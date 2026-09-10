@@ -64,10 +64,10 @@ Filename: "powershell.exe"; \
 
 [Icons]
 Name: "{group}\Daten uebernehmen"; Filename: "{app}\app\.venv\Scripts\lernapp.exe"; Parameters: "restore"; WorkingDir: "{app}\app"; IconFilename: "{app}\app\lernapp.ico"
-Name: "{group}\Lernapp"; Filename: "{app}\app\.venv\Scripts\lernapp.exe"; Parameters: "start"; WorkingDir: "{app}\app"; IconFilename: "{app}\app\lernapp.ico"; Comment: "Lernapp starten"
-Name: "{group}\Lernapp beenden"; Filename: "{app}\app\.venv\Scripts\lernapp.exe"; Parameters: "stop"; WorkingDir: "{app}\app"; IconFilename: "{app}\app\lernapp.ico"
+Name: "{group}\Lernapp"; Filename: "{app}\app\.venv\Scripts\lernapp-desktop.exe"; Parameters: "start"; WorkingDir: "{app}\app"; IconFilename: "{app}\app\lernapp.ico"; Comment: "Lernapp starten"
+Name: "{group}\Lernapp beenden"; Filename: "{app}\app\.venv\Scripts\lernapp-desktop.exe"; Parameters: "stop"; WorkingDir: "{app}\app"; IconFilename: "{app}\app\lernapp.ico"
 Name: "{group}\Lernapp reparieren (erneut einrichten)"; Filename: "{app}\installer\install.cmd"; WorkingDir: "{app}\installer"
-Name: "{userdesktop}\Lernapp"; Filename: "{app}\app\.venv\Scripts\lernapp.exe"; Parameters: "start"; WorkingDir: "{app}\app"; IconFilename: "{app}\app\lernapp.ico"; Tasks: desktopicon
+Name: "{userdesktop}\Lernapp"; Filename: "{app}\app\.venv\Scripts\lernapp-desktop.exe"; Parameters: "start"; WorkingDir: "{app}\app"; IconFilename: "{app}\app\lernapp.ico"; Tasks: desktopicon
 
 [Tasks]
 Name: "desktopicon"; Description: "Verknüpfung auf dem Desktop anlegen"; GroupDescription: "Zusätzliche Symbole:"

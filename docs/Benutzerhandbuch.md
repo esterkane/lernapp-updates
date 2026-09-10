@@ -6,7 +6,7 @@
 
 Lade den Installer für deinen Laptop von der [Downloadseite](https://github.com/esterkane/lernapp-updates/releases/latest). Unter Windows: ZIP-Datei vollständig entpacken und `install.cmd` doppelklicken. Warte, bis die Installation abgeschlossen ist. Die erste Installation benötigt Internet und kann einige Minuten dauern.
 
-Öffne danach **Lernapp** über den Desktop oder das Startmenü. Ein Browserfenster öffnet sich. Die App läuft auf deinem Laptop; du musst keinen Webserver einrichten.
+Öffne danach **Lernapp** über den Desktop oder das Startmenü. Unter Windows öffnet sich ein eigenes App-Fenster ohne Konsolenfenster. Wenn du es schließt, werden auch die Hintergrunddienste beendet. Gespeicherter Fortschritt bleibt beim nächsten Start erhalten. Warte nach einer Antwort auf die Speicherbestätigung, bevor du schließt. Unter macOS und Linux öffnet sich die App im Browser. Die App läuft auf deinem Laptop; du musst keinen Webserver einrichten.
 
 ## 2. Ein vorbereitetes Lernpaket übernehmen
 

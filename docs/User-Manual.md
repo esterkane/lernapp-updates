@@ -14,7 +14,7 @@ Download the installer for your laptop from the [download page](https://github.c
 
 Wait for installation to finish. The first installation needs internet access and can take several minutes.
 
-Open **Lernapp** from the desktop or Start menu. A browser window opens. The app runs on your laptop; you do not need to set up a web server.
+Open **Lernapp** from the desktop or Start menu. On Windows, a dedicated app window opens without a command prompt. Close that window to stop Lernapp and its background services. Saved progress remains available next time. Wait for the saved confirmation before closing after an answer. On macOS and Linux, Lernapp opens in your browser. The app runs on your laptop; you do not need to set up a web server.
 
 ## 2. Import a prepared learning pack
 

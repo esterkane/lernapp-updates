@@ -96,3 +96,16 @@ jobs:
           python-version: "3.12"
       - name: Test actual installer path binding on Windows PowerShell
         run: python scripts/test_windows_installer_paths.py
+
+  windows-desktop:
+    name: Windows app window lifecycle (WebView2)
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --no-deps .
+      - run: python -m pip install "pywebview>=6,<7" httpx platformdirs
+      - run: python scripts/test_windows_desktop.py

@@ -12,7 +12,7 @@ Download the installer for your computer from [Releases](https://github.com/este
 - **macOS:** open the `.pkg` file and follow the installer.
 - **Linux:** run the downloaded installer with `bash lernapp-<version>-linux-installer.sh`.
 
-The first installation needs an internet connection. Python and the required components are installed for you. Then open **Lernapp** using its shortcut; the app opens in your browser.
+The first installation needs an internet connection. Python and the required components are installed for you. Then open **Lernapp** using its shortcut; on Windows it opens in its own app window, without a command prompt. Closing that window stops the app and its background services. On macOS and Linux the browser interface remains available.
 
 **[English user manual](docs/User-Manual.md) · [Deutsches Benutzerhandbuch](docs/Benutzerhandbuch.md)**
 

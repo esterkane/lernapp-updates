@@ -144,7 +144,7 @@ if (-not $NoShortcuts) {
     foreach ($lnkPath in $targets) {
         New-Item -ItemType Directory -Force -Path (Split-Path $lnkPath) | Out-Null
         $lnk = $shell.CreateShortcut($lnkPath)
-        $lnk.TargetPath = $lernappExe
+        $lnk.TargetPath = Join-Path $AppDir '.venv\Scripts\lernapp-desktop.exe'
         $lnk.Arguments = 'start'
         $lnk.WorkingDirectory = $AppDir
         $lnk.Description = 'Lernapp starten (Datenbank, Server, Oberfläche)'
@@ -160,7 +160,7 @@ if (-not $NoShortcuts) {
     $restoreLnk.Save()
     # "Lernapp beenden" in the Start Menu
     $stopLnk = $shell.CreateShortcut((Join-Path (Join-Path ([Environment]::GetFolderPath('Programs')) 'Lernapp') 'Lernapp beenden.lnk'))
-    $stopLnk.TargetPath = $lernappExe
+    $stopLnk.TargetPath = Join-Path $AppDir '.venv\Scripts\lernapp-desktop.exe'
     $stopLnk.Arguments = 'stop'
     $stopLnk.WorkingDirectory = $AppDir
     $stopLnk.Description = 'Laufende Lernapp beenden'

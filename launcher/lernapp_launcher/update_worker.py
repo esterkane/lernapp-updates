@@ -77,13 +77,33 @@ def environment(root: Path, data: Path) -> dict[str, str]:
 
 
 def stop(root: Path, data: Path) -> None:
+    desktop_pid = None
+    try:
+        desktop_pid = int(json.loads((data / 'run/desktop.json').read_text())['pid'])
+    except (OSError, ValueError, KeyError):
+        pass
     subprocess.run(
         [str(python(root)), "-m", "lernapp_launcher.cli", "stop"],
         cwd=data,
         env=environment(root, data),
         check=True,
         timeout=90,
+        creationflags=0x08000000 if os.name == "nt" else 0,
     )
+    if os.name == 'nt' and desktop_pid:
+        import ctypes
+        kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+        kernel.OpenProcess.argtypes = [ctypes.c_ulong, ctypes.c_bool, ctypes.c_ulong]
+        kernel.OpenProcess.restype = ctypes.c_void_p
+        kernel.WaitForSingleObject.argtypes = [ctypes.c_void_p, ctypes.c_ulong]
+        kernel.CloseHandle.argtypes = [ctypes.c_void_p]
+        handle = kernel.OpenProcess(0x00100000, False, desktop_pid)
+        if handle:
+            try:
+                if kernel.WaitForSingleObject(handle, 30000) != 0:
+                    raise RuntimeError('App window is still closing; update cancelled safely')
+            finally:
+                kernel.CloseHandle(handle)
     # No copy of a live database, even if an old launcher reports success too early.
     if (data / "pg/postmaster.pid").exists():
         raise RuntimeError("Database is still running")

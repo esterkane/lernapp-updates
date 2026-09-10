@@ -214,12 +214,12 @@ def _signal_pid(pid: int, *, force: bool = False) -> None:
         return
     if IS_WINDOWS:
         if force:
-            subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], capture_output=True, check=False)
+            subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], capture_output=True, check=False, creationflags=0x08000000 if IS_WINDOWS else 0)
         else:
             try:
                 os.kill(pid, signal.CTRL_BREAK_EVENT)  # type: ignore[attr-defined]
             except OSError:
-                subprocess.run(["taskkill", "/PID", str(pid), "/T"], capture_output=True, check=False)
+                subprocess.run(["taskkill", "/PID", str(pid), "/T"], capture_output=True, check=False, creationflags=0x08000000 if IS_WINDOWS else 0)
         return
     try:
         os.kill(pid, signal.SIGKILL if force else signal.SIGTERM)
@@ -280,7 +280,7 @@ def write_state(state: RunState) -> None:
 
 
 def clear_state() -> None:
-    for name in ("state.json", "launcher.pid", "api.pid", "ui.pid", "api-token"):
+    for name in ("state.json", "launcher.pid", "api.pid", "ui.pid", "api-token", "stop-request.json"):
         try:
             (run_dir() / name).unlink()
         except FileNotFoundError:
@@ -369,7 +369,7 @@ def spawn(name: str, cmd: Sequence[str], env: dict[str, str], cwd: Path, echo: b
     logger.info("=== start: %s", " ".join(cmd))
     kwargs: dict[str, Any] = {}
     if IS_WINDOWS:
-        kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore[attr-defined]
+        kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP | (0x08000000 if not echo else 0)  # type: ignore[attr-defined]
     else:
         kwargs["start_new_session"] = False
     proc = subprocess.Popen(  # noqa: S603
@@ -391,7 +391,7 @@ def terminate(proc: subprocess.Popen[bytes], name: str, grace: float = STOP_GRAC
         return
     try:
         if IS_WINDOWS:
-            proc.send_signal(signal.CTRL_BREAK_EVENT)  # type: ignore[attr-defined]
+            proc.terminate()
         else:
             proc.terminate()
     except OSError:
@@ -404,7 +404,7 @@ def terminate(proc: subprocess.Popen[bytes], name: str, grace: float = STOP_GRAC
     print(f"  {name}: reagiert nicht, wird beendet (kill).", file=sys.stderr)
     try:
         if IS_WINDOWS:
-            subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True, check=False)
+            subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True, check=False, creationflags=0x08000000 if IS_WINDOWS else 0)
         else:
             proc.kill()
         proc.wait(timeout=5)
@@ -466,13 +466,14 @@ def stop_embedded_postgres(timeout: float = 20.0) -> bool:
                 [str(pg_ctl), "-D", str(pg_dir), "-m", "fast", "-w", "-t", str(int(timeout)), "stop"],
                 capture_output=True,
                 timeout=timeout + 5,
+                creationflags=0x08000000 if IS_WINDOWS else 0,
                 check=False,
             )
         except Exception:  # noqa: BLE001
             pass
     if pid_alive(pid):
         if IS_WINDOWS:
-            subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], capture_output=True, check=False)
+            subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], capture_output=True, check=False, creationflags=0x08000000 if IS_WINDOWS else 0)
         else:
             try:
                 os.kill(pid, signal.SIGINT)
@@ -515,6 +516,9 @@ def _child_env(api_port: int, ui_port: int) -> dict[str, str]:
 def cmd_start(args: argparse.Namespace) -> int:
     dev: bool = bool(args.dev)
     open_browser: bool = not args.no_browser
+    if IS_WINDOWS and open_browser and not dev:
+        from lernapp_launcher.desktop import main as desktop_main
+        return desktop_main()
     ddir = data_dir()
     root = repo_root()
 
@@ -591,7 +595,19 @@ def cmd_start(args: argparse.Namespace) -> int:
     state = RunState(os.getpid(), api.pid, ui.pid, api_port, ui_port, time.time())
     write_state(state)
 
+    def watch_stop():
+        while not stop_requested.wait(.2):
+            try:
+                request = json.loads((run_dir() / 'stop-request.json').read_text())
+                if request == {'launcher_pid': state.launcher_pid, 'started_at': state.started_at}:
+                    stop_requested.set()
+            except (OSError, ValueError):
+                pass
+
+    threading.Thread(target=watch_stop, daemon=True).start()
+
     def _shutdown(code: int) -> int:
+        stop_requested.set()
         print("Beende Lernapp …")
         terminate(ui, "ui")
         terminate(api, "api")
@@ -673,7 +689,11 @@ def _stop_state(st: RunState) -> bool:
     pids = [st.api_pid, st.ui_pid]
     own = os.getpid()
     if st.launcher_pid != own and pid_alive(st.launcher_pid):
-        _signal_pid(st.launcher_pid)
+        if IS_WINDOWS:
+            (run_dir() / 'stop-request.json').write_text(json.dumps(
+                {'launcher_pid': st.launcher_pid, 'started_at': st.started_at}))
+        else:
+            _signal_pid(st.launcher_pid)
         if _wait_pids_gone([st.launcher_pid, *pids], STOP_GRACE_S + 5):
             stop_embedded_postgres()
             clear_state()
