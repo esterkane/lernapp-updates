@@ -4,6 +4,23 @@ Practise German for TestDaF, work and negotiations on your own laptop.
 
 Lernapp brings together conversation and writing practice, vocabulary cards, PDF-based practice tests with audio, and saved learning progress. Add your own materials and useful links as you learn.
 
+## Why this project exists
+
+Lernapp is also an experiment in AI-assisted learning design.
+
+Rather than treating an LLM as a generic question-answering chatbot, the project explores how conversational AI, speech recognition, personal learning material, practice history, and structured exercises can support deliberate language practice.
+
+Current and planned work includes:
+
+- spoken conversation practice
+- AI-assisted feedback
+- local speech recognition
+- learner progress and practice history
+- personal document-based learning material
+- scenario-based workplace and negotiation practice
+- separate evaluation of language quality and communication strategy
+- adaptive practice based on recurring weaknesses
+
 ## Download and get started
 
 Download the installer for your computer from [Releases](https://github.com/esterkane/lernapp-updates/releases/latest):
